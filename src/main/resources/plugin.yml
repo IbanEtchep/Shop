@@ -2,7 +2,10 @@ name: Shop
 version: ${project.version}
 main: fr.iban.shop.Shop
 api-version: 1.16
-prefix: [ Shop ]
+prefix: Shop
 depend: [ Vault ]
 authors: [ Iban ]
 description: Plugin de shop
+
+commands:
+  shop:

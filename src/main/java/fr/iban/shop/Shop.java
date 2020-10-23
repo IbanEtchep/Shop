@@ -11,10 +11,14 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import fr.iban.shop.commands.ShopCMD;
+import fr.iban.shop.listeners.InventoryListener;
 import fr.iban.shop.manager.ShopItem;
 import fr.iban.shop.manager.ShopManager;
 
 public final class Shop extends JavaPlugin {
+	
+	private static Shop instance;
     
     private File shopsFile;
     private FileConfiguration shopsConfig;
@@ -22,15 +26,26 @@ public final class Shop extends JavaPlugin {
 
     @Override
     public void onEnable() {
+    	instance = this;
         createShopsConfig();
         shopManager = new ShopManager(this);
         PluginManager pm = getServer().getPluginManager();
 
         shopManager.saveShop(new ShopItem(1, 10.3, new ItemStack(Material.DIAMOND), "minerais"));
-        //Listeners:
+        shopManager.saveShop(new ShopItem(2, 10.4, new ItemStack(Material.IRON_INGOT), "minerais"));
+        shopManager.saveShop(new ShopItem(3, 10.3, new ItemStack(Material.REDSTONE), "minerais"));
+        shopManager.saveShop(new ShopItem(4, 100.3, new ItemStack(Material.COAL), "minerais"));
+
+        shopManager.loadShops();
+        /*
+         * Register listeners :
+         */
+        pm.registerEvents(new InventoryListener(), this);
         
-        
-        //Commands:
+        /*
+         * Register Commands:
+         */
+        getCommand("shop").setExecutor(new ShopCMD());
     }
 
     @Override
@@ -62,6 +77,10 @@ public final class Shop extends JavaPlugin {
 
 	public ShopManager getShopManager() {
 		return shopManager;
+	}
+
+	public static Shop getInstance() {
+		return instance;
 	}
 
 }

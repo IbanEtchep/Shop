@@ -9,32 +9,29 @@ import org.bukkit.inventory.ItemStack;
 public class ShopItem implements ConfigurationSerializable {
 	
 	private int id;
-	private double price;
+	private double buy;
+	private double sell;
 	private ItemStack item;
 	private String category;
 	private int maxStock = 1000;
 	
-	public ShopItem(int id, double price, ItemStack item, String category) {
+	public ShopItem(int id, double buy, double sell, ItemStack item, String category) {
 		this.id = id;
-		this.price = price;
+		this.setBuy(buy);
+		this.setSell(sell);
 		this.item = item;
 		this.category = category;
 	}
 	
-	public ShopItem(int id, double price, ItemStack item, String category, int maxStock) {
+	public ShopItem(int id, double buy, double sell, ItemStack item, String category, int maxStock) {
 		this.id = id;
-		this.price = price;
+		this.setBuy(buy);
+		this.setSell(sell);
 		this.item = item;
 		this.category = category;
 		this.maxStock = maxStock;
 	}
 
-	public double getPrice() {
-		return price;
-	}
-	public void setPrice(double price) {
-		this.price = price;
-	}
 	public ItemStack getItem() {
 		return item;
 	}
@@ -58,6 +55,22 @@ public class ShopItem implements ConfigurationSerializable {
 
 	public int getMaxStock() {
 		return maxStock;
+	}
+
+	public double getSell() {
+		return sell;
+	}
+
+	public void setSell(double sell) {
+		this.sell = sell;
+	}
+
+	public double getBuy() {
+		return buy;
+	}
+
+	public void setBuy(double buy) {
+		this.buy = buy;
 	}
 
 	

@@ -31,10 +31,10 @@ public final class Shop extends JavaPlugin {
         shopManager = new ShopManager(this);
         PluginManager pm = getServer().getPluginManager();
 
-        shopManager.saveShop(new ShopItem(1, 10.3, new ItemStack(Material.DIAMOND), "minerais"));
-        shopManager.saveShop(new ShopItem(2, 10.4, new ItemStack(Material.IRON_INGOT), "minerais"));
-        shopManager.saveShop(new ShopItem(3, 10.3, new ItemStack(Material.REDSTONE), "minerais"));
-        shopManager.saveShop(new ShopItem(4, 100.3, new ItemStack(Material.COAL), "minerais"));
+        shopManager.saveShop(new ShopItem(1, 10.3, 0.4, new ItemStack(Material.DIAMOND), "minerais"));
+        shopManager.saveShop(new ShopItem(2, 10.4, 0.4, new ItemStack(Material.IRON_INGOT), "minerais"));
+        shopManager.saveShop(new ShopItem(3, 10.3, 0.4, new ItemStack(Material.REDSTONE), "minerais"));
+        shopManager.saveShop(new ShopItem(4, 100.3, 0.4, new ItemStack(Material.COAL), "minerais"));
 
         shopManager.loadShops();
         /*

@@ -3,7 +3,6 @@ package fr.iban.shop.menu.menus;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 
@@ -11,6 +10,7 @@ import fr.iban.shop.Shop;
 import fr.iban.shop.manager.ShopItem;
 import fr.iban.shop.manager.ShopManager;
 import fr.iban.shop.menu.PaginatedMenu;
+import fr.iban.shop.utils.ItemBuilder;
 
 public class CategoryMenu extends PaginatedMenu{
 	
@@ -42,20 +42,19 @@ public class CategoryMenu extends PaginatedMenu{
 
 		ShopManager sm = Shop.getInstance().getShopManager();
 		
-		List<ShopItem> shopItems = sm.getShopItems().values().stream().filter(i -> i.getCategory().equalsIgnoreCase(category)).collect(Collectors.toList());
-		
-		shopItems.forEach(item -> {
-			Bukkit.broadcastMessage(item.toString());
-		});
+		List<ShopItem> shopItems = sm.getShopItems().get(category).values().stream().collect(Collectors.toList());
 		
 		if(shopItems != null && !shopItems.isEmpty()) {
             for(int i = 0; i < getMaxItemsPerPage(); i++) {
                 index = getMaxItemsPerPage() * page + i;
                 if(index >= shopItems.size()) break;
                 if (shopItems.get(index) != null){
-
-                    inventory.addItem(shopItems.get(index).getItem());
-
+                	ShopItem shopItem = shopItems.get(index);
+                    inventory.addItem(new ItemBuilder(shopItem.getItem())
+                    		.addLore("§cAchat : §b" + shopItem.getBuy() + "$§7 (clic gauche)")
+                    		.addLore("§aVente : §b" + shopItem.getSell() + "$§7 (clic droit)")
+                    		.addLore("§7Clic molette pour tout vendre.")
+                    		.build());
                 }
             }
         }

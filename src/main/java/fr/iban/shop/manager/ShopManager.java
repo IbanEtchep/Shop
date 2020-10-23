@@ -44,7 +44,7 @@ public class ShopManager {
 						));
 			}	
 		}
-		shop.getLogger().log(Level.INFO, "Chargement des shops terminé. ("+shopItems.size()+" articles chargés)");
+		shop.getLogger().log(Level.INFO, "Chargement des shops terminé.");
 
 	}
 

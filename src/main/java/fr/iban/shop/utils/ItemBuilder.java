@@ -102,7 +102,7 @@ public class ItemBuilder {
     }
     
     public ItemBuilder addLore (String lore) {
-        List<String> loreList = stack.getLore();
+        List<String> loreList = stack.getLore() == null ? new ArrayList<>() : stack.getLore();
         loreList.add(lore);
         ItemMeta meta = getItemMeta();
         meta.setLore(loreList);

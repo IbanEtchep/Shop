@@ -1,12 +1,8 @@
 package fr.iban.shop.manager;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.inventory.ItemStack;
 
-public class ShopItem implements ConfigurationSerializable {
+public class ShopItem {
 	
 	private int id;
 	private double buy;
@@ -37,12 +33,6 @@ public class ShopItem implements ConfigurationSerializable {
 	}
 	public void setItem(ItemStack item) {
 		this.item = item;
-	}
-
-	@Override
-	public Map<String, Object> serialize() {
-        Map<String, Object> map = new HashMap<String, Object>();
-		return map;
 	}
 
 	public int getId() {

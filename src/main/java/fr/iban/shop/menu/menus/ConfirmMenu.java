@@ -5,7 +5,9 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 
+import fr.iban.shop.Shop;
 import fr.iban.shop.manager.ShopItem;
+import fr.iban.shop.manager.TransactionManager;
 import fr.iban.shop.menu.Menu;
 import fr.iban.shop.utils.ItemBuilder;
 import fr.iban.shop.utils.ShopAction;
@@ -60,7 +62,12 @@ public class ConfirmMenu extends Menu {
 			new CategoryMenu(player, shopItem.getCategory()).open();
 			return;
 		case "§aConfirmer":
-			
+			TransactionManager tm = Shop.getInstance().getTransactionManager();
+			if(action == ShopAction.BUY) {
+				tm.buyItem(player, shopItem, amount);
+			}else {
+				tm.sellItem(player, shopItem, amount);
+			}
 			return;
 		default:
 			return;
@@ -74,7 +81,7 @@ public class ConfirmMenu extends Menu {
 
 		double prix = shopItem.calculatePrice(amount, action);
 
-		inventory.setItem(22, new ItemBuilder(shopItem.getItem().clone()).setAmount(amount).addLore("§d§lPrix : §5§l" + amount * prix + "$").build());
+		inventory.setItem(22, new ItemBuilder(shopItem.getItem().clone()).setAmount(amount).addLore("§d§lPrix : §5§l" + prix + "$").build());
 
 		if(amount > 1)
 			inventory.setItem(18, new ItemBuilder(Material.RED_STAINED_GLASS_PANE).setName("§c§lMettre à 1").build());

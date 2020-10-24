@@ -9,12 +9,15 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.PluginManager;
+import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import fr.iban.shop.commands.ShopCMD;
 import fr.iban.shop.listeners.InventoryListener;
 import fr.iban.shop.manager.ShopItem;
 import fr.iban.shop.manager.ShopManager;
+import fr.iban.shop.manager.TransactionManager;
+import net.milkbowl.vault.economy.Economy;
 
 public final class Shop extends JavaPlugin {
 	
@@ -23,18 +26,28 @@ public final class Shop extends JavaPlugin {
     private File shopsFile;
     private FileConfiguration shopsConfig;
     private ShopManager shopManager;
+    private TransactionManager transactionManager;
+    private static Economy econ = null;
 
     @Override
     public void onEnable() {
     	instance = this;
         createShopsConfig();
         shopManager = new ShopManager(this);
+        transactionManager = new TransactionManager();
         PluginManager pm = getServer().getPluginManager();
 
         shopManager.saveShop(new ShopItem(1, 10.3, 0.4, new ItemStack(Material.DIAMOND), "minerais"));
         shopManager.saveShop(new ShopItem(2, 10.4, 0.4, new ItemStack(Material.IRON_INGOT), "minerais"));
         shopManager.saveShop(new ShopItem(3, 10.3, 0.4, new ItemStack(Material.REDSTONE), "minerais"));
         shopManager.saveShop(new ShopItem(4, 100.3, 0.4, new ItemStack(Material.COAL), "minerais"));
+        
+        //Vault setup
+        if (!setupEconomy() ) {
+            getLogger().severe(String.format("[%s] - Disabled due to no Vault dependency found!", getDescription().getName()));
+            getServer().getPluginManager().disablePlugin(this);
+            return;
+        }
 
         shopManager.loadShops();
         /*
@@ -46,6 +59,7 @@ public final class Shop extends JavaPlugin {
          * Register Commands:
          */
         getCommand("shop").setExecutor(new ShopCMD());
+        getCommand("shop").setTabCompleter(new ShopCMD());
     }
 
     @Override
@@ -81,6 +95,26 @@ public final class Shop extends JavaPlugin {
 
 	public static Shop getInstance() {
 		return instance;
+	}
+	
+    public static Economy getEconomy() {
+        return econ;
+    }
+	
+    private boolean setupEconomy() {
+        if (getServer().getPluginManager().getPlugin("Vault") == null) {
+            return false;
+        }
+        RegisteredServiceProvider<Economy> rsp = getServer().getServicesManager().getRegistration(Economy.class);
+        if (rsp == null) {
+            return false;
+        }
+        econ = rsp.getProvider();
+        return econ != null;
+    }
+
+	public TransactionManager getTransactionManager() {
+		return transactionManager;
 	}
 
 }

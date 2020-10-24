@@ -5,7 +5,7 @@ import org.bukkit.inventory.ItemStack;
 import fr.iban.shop.utils.ShopAction;
 
 public class ShopItem {
-	
+
 	private int id;
 	private double buy;
 	private double sell;
@@ -13,7 +13,7 @@ public class ShopItem {
 	private String category;
 	private int maxStock = 5000;
 	private int stock = maxStock;
-	
+
 	public ShopItem(int id, double buy, double sell, ItemStack item, String category) {
 		this.id = id;
 		this.setBuy(buy);
@@ -21,7 +21,7 @@ public class ShopItem {
 		this.item = item;
 		this.category = category;
 	}
-	
+
 	public ShopItem(int id, double buy, double sell, ItemStack item, String category, int maxStock) {
 		this.id = id;
 		this.setBuy(buy);
@@ -84,26 +84,41 @@ public class ShopItem {
 	public void setStock(int stock) {
 		this.stock = stock;
 	}
-	
+
 	public double getModifier(int currentstock) {
-		return (double)maxStock/currentstock;
+		return (double)Math.round((double)maxStock/currentstock * 100)/100;
 	}
-	
+
+	private double getPercent(int currentstock) {
+		return (double)Math.round((1-getModifier(currentstock))*100*100)/100;
+	}
+
+	public String getPriceVariationString() {
+		double percent = getPercent(stock);
+		if(percent == 0) {
+			return "";
+		}else if(percent > 0){
+			return " §a⬆ " + percent;
+		}else {
+			return " §c⬇ " + percent;
+		}
+	}
+
 	public double calculatePrice(int amount, ShopAction action) {
 		double finalAmount = 0;
 		int vstock = stock;
 		if(action == ShopAction.BUY) {
 			for (int i = 0; i < amount; i++) {
-				finalAmount += buy * getModifier(stock);
+				finalAmount += buy * getModifier(vstock);
 				vstock--;
 			}
 		}else if(action == ShopAction.SELL) {
 			for (int i = 0; i < amount; i++) {
-				finalAmount += sell * getModifier(stock);
+				finalAmount += sell * getModifier(vstock);
 				vstock++;
 			}
 		}
 		return (double)Math.round(finalAmount * 100)/100;
 	}
-	
+
 }

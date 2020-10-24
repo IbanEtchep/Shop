@@ -1,13 +1,56 @@
 package fr.iban.shop.manager;
 
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+
+import fr.iban.shop.Shop;
+import fr.iban.shop.utils.ItemBuilder;
+import fr.iban.shop.utils.ShopAction;
+import net.milkbowl.vault.economy.Economy;
+import net.milkbowl.vault.economy.EconomyResponse;
+
 public class TransactionManager {
-	
-	public void buyItem(ShopItem shopItem, int amount) {
-		
-	}
-	
-	public void sellItem(ShopItem shopItem, int amount) {
-		
+
+	public void buyItem(Player player, ShopItem shopItem, int amount) {
+		Economy econ = Shop.getEconomy();
+		double prix = shopItem.calculatePrice(amount, ShopAction.BUY);
+		if(econ.has(player, prix)) {
+			EconomyResponse r =	econ.withdrawPlayer(player, prix);
+			if(r.transactionSuccess()){
+				ItemStack item = new ItemBuilder(shopItem.getItem().clone()).setAmount(amount).build();
+				if(!isInventoryFull(player)) {
+					player.getInventory().addItem(item);
+				}else {
+					player.getWorld().dropItem(player.getLocation(), item);
+				}
+				player.sendMessage("§aVous avez acheté " + amount + " " + item.getType().name() + " pour " + prix + "$");
+			}
+		}else {
+			player.sendMessage("§cVous n'avez pas les fonds nécessaires.");
+		}
+
 	}
 
+	public void sellItem(Player player, ShopItem shopItem, int amount) {
+		Economy econ = Shop.getEconomy();
+		double prix = shopItem.calculatePrice(amount, ShopAction.SELL);
+		ItemStack item = new ItemBuilder(shopItem.getItem().clone()).setAmount(amount).build();
+
+		if(player.getInventory().containsAtLeast(item, amount)) {
+			EconomyResponse r = econ.depositPlayer(player, prix);
+			if(r.transactionSuccess()){
+		        player.getInventory().removeItem(item);
+		        player.updateInventory();
+				player.sendMessage("§aVous avez vendu " + amount + " " + item.getType().name() + " pour " + prix + "$");	
+			}
+		}else {
+			player.sendMessage("§cVous n'avez pas les items que vous voulez vendre.");
+		}
+
+
+	}
+
+	private boolean isInventoryFull(Player player) {
+		return player.getInventory().firstEmpty() == -1;
+	}
 }

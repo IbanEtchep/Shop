@@ -40,6 +40,7 @@ public class ShopManager {
 						shopsConfig.getDouble(path+"sell"),
 						shopsConfig.getItemStack(path+"item"),
 						category,
+						shopsConfig.getInt(path+"maxstock"),
 						shopsConfig.getInt(path+"stock")
 						));
 			}	
@@ -57,7 +58,8 @@ public class ShopManager {
 		shopsConfig.set(itemPath+"buy", item.getBuy());
 		shopsConfig.set(itemPath+"sell", item.getSell());
 		shopsConfig.set(itemPath+"item", item.getItem());
-		shopsConfig.set(itemPath+"stock", item.getMaxStock());
+		shopsConfig.set(itemPath+"maxstock", item.getMaxStock());
+		shopsConfig.set(itemPath+"stock", item.getStock());
 	}
 
 	public Map<String, Map<Integer, ShopItem>> getShopItems() {

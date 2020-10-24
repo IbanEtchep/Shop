@@ -7,12 +7,14 @@ import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.inventory.ItemStack;
 
 import fr.iban.shop.Shop;
 import fr.iban.shop.manager.ShopItem;
 import fr.iban.shop.manager.ShopManager;
 import fr.iban.shop.menu.PaginatedMenu;
 import fr.iban.shop.utils.ItemBuilder;
+import fr.iban.shop.utils.ShopAction;
 
 public class CategoryMenu extends PaginatedMenu{
 
@@ -58,13 +60,20 @@ public class CategoryMenu extends PaginatedMenu{
 				p.closeInventory();
 			}
 		}else {
+			ShopItem clickedItem = getMatch(shopItems, e.getCurrentItem());
+
+			if(clickedItem == null) return;		
+
 			if(e.getClick() == ClickType.RIGHT) {
 				//Vendre
+				new ConfirmMenu(p, clickedItem, ShopAction.SELL).open();
 			}else if(e.getClick() == ClickType.LEFT) {
 				//Acheter
+				new ConfirmMenu(p, clickedItem, ShopAction.BUY).open();
 			}else if(e.getClick() == ClickType.CREATIVE) {
 				//Tout vendre
 			}
+
 		}
 	}
 
@@ -102,6 +111,15 @@ public class CategoryMenu extends PaginatedMenu{
 			}
 		}
 
+	}
+
+	private ShopItem getMatch(List<ShopItem> fromlist, ItemStack item) {
+		for (ShopItem shopItem : fromlist) {
+			if(shopItem.getItem().getType() == item.getType()) {
+				return shopItem;
+			}
+		}
+		return null;
 	}
 
 }

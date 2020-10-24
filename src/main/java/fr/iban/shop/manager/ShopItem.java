@@ -3,6 +3,7 @@ package fr.iban.shop.manager;
 import org.bukkit.inventory.ItemStack;
 
 import fr.iban.shop.utils.ShopAction;
+import net.md_5.bungee.api.ChatColor;
 
 public class ShopItem {
 
@@ -86,21 +87,22 @@ public class ShopItem {
 	}
 
 	public double getModifier(int currentstock) {
-		return (double)Math.round((double)maxStock/currentstock * 100)/100;
+		return (double)Math.round(((double)maxStock/2)/currentstock * 100)/100;
 	}
 
 	private double getPercent(int currentstock) {
-		return (double)Math.round((1-getModifier(currentstock))*100*100)/100;
+		double percent = (1-getModifier(currentstock))*100;
+		return (double)Math.round(percent*10)/10;
 	}
 
-	public String getPriceVariationString() {
+	public String getPriceVariationString(ShopAction action) {
 		double percent = getPercent(stock);
 		if(percent == 0) {
 			return "";
 		}else if(percent > 0){
-			return " §a⬆ " + percent;
+			return (action == ShopAction.BUY ? ChatColor.GREEN : ChatColor.RED) + " ⬇ " + percent + "%";
 		}else {
-			return " §c⬇ " + percent;
+			return  (action == ShopAction.BUY ? ChatColor.RED : ChatColor.GREEN) + " ⬆ " + Math.abs(percent) + "%";
 		}
 	}
 

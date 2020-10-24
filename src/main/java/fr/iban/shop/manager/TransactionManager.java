@@ -11,7 +11,11 @@ import net.milkbowl.vault.economy.EconomyResponse;
 
 public class TransactionManager {
 
-	public void buyItem(Player player, ShopItem shopItem, int amount) {
+	public void buyItem(Player player, ShopItem shopItem, int amount){
+		if(shopItem.getStock() - amount <= 1) {
+			player.sendMessage("§cCet item n'est plus en stock.");
+			return;
+		}
 		Economy econ = Shop.getEconomy();
 		double prix = shopItem.calculatePrice(amount, ShopAction.BUY);
 		if(econ.has(player, prix)) {
@@ -23,15 +27,20 @@ public class TransactionManager {
 				}else {
 					player.getWorld().dropItem(player.getLocation(), item);
 				}
+				shopItem.setStock(shopItem.getStock() - amount);
 				player.sendMessage("§aVous avez acheté " + amount + " " + item.getType().name() + " pour " + prix + "$");
 			}
 		}else {
 			player.sendMessage("§cVous n'avez pas les fonds nécessaires.");
 		}
-
 	}
 
+
 	public void sellItem(Player player, ShopItem shopItem, int amount) {
+		if(shopItem.getStock() + amount >= shopItem.getMaxStock()) {
+			player.sendMessage("§cLes réserves sont pleines, impossible de vendre davantage de cet item.");
+			return;
+		}
 		Economy econ = Shop.getEconomy();
 		double prix = shopItem.calculatePrice(amount, ShopAction.SELL);
 		ItemStack item = new ItemBuilder(shopItem.getItem().clone()).setAmount(amount).build();
@@ -39,9 +48,10 @@ public class TransactionManager {
 		if(player.getInventory().containsAtLeast(item, amount)) {
 			EconomyResponse r = econ.depositPlayer(player, prix);
 			if(r.transactionSuccess()){
-		        player.getInventory().removeItem(item);
-		        player.updateInventory();
+				player.getInventory().removeItem(item);
+				player.updateInventory();
 				player.sendMessage("§aVous avez vendu " + amount + " " + item.getType().name() + " pour " + prix + "$");	
+				shopItem.setStock(shopItem.getStock() + amount);
 			}
 		}else {
 			player.sendMessage("§cVous n'avez pas les items que vous voulez vendre.");

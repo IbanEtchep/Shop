@@ -68,7 +68,7 @@ public class ConfirmMenu extends Menu {
 			}else {
 				tm.sellItem(player, shopItem, amount);
 			}
-			return;
+			break;
 		default:
 			return;
 		}

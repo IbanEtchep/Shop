@@ -40,7 +40,6 @@ public class FluctuationManager {
 	}
 	
 	public void scheduleFluctuation(long period, double max) {
-		Bukkit.broadcastMessage("Fluctuation");
 		new BukkitRunnable() {
 			@Override
 			public void run() {

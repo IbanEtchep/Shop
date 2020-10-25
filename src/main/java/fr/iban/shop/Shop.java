@@ -14,6 +14,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import fr.iban.shop.commands.ShopCMD;
 import fr.iban.shop.listeners.InventoryListener;
+import fr.iban.shop.manager.FluctuationManager;
 import fr.iban.shop.manager.ShopItem;
 import fr.iban.shop.manager.ShopManager;
 import fr.iban.shop.manager.TransactionManager;
@@ -27,6 +28,7 @@ public final class Shop extends JavaPlugin {
     private FileConfiguration shopsConfig;
     private ShopManager shopManager;
     private TransactionManager transactionManager;
+    private FluctuationManager fluctuationManager;
     private static Economy econ = null;
 
     @Override
@@ -35,6 +37,7 @@ public final class Shop extends JavaPlugin {
         createShopsConfig();
         shopManager = new ShopManager(this);
         transactionManager = new TransactionManager();
+        fluctuationManager = new FluctuationManager(shopManager);
         PluginManager pm = getServer().getPluginManager();
 
         shopManager.saveShop(new ShopItem(1, 10.3, 0.4, new ItemStack(Material.DIAMOND), "minerais"));
@@ -50,11 +53,11 @@ public final class Shop extends JavaPlugin {
         }
 
         shopManager.loadShops();
+        fluctuationManager.scheduleFluctuation(10*20L, 0.01D);
         /*
          * Register listeners :
          */
         pm.registerEvents(new InventoryListener(), this);
-        
         /*
          * Register Commands:
          */

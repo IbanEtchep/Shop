@@ -103,8 +103,9 @@ public class CategoryMenu extends PaginatedMenu{
 				if (shopItems.get(index) != null){
 					ShopItem shopItem = shopItems.get(index);
 					inventory.addItem(new ItemBuilder(shopItem.getItem().clone())
-							.addLore("§cAchat : §b" + shopItem.calculatePrice(1, ShopAction.BUY) + "$"+ shopItem.getPriceVariationString(ShopAction.BUY) + "§7 (clic gauche)")
-							.addLore("§aVente : §b" + shopItem.calculatePrice(1, ShopAction.SELL) + "$"+ shopItem.getPriceVariationString(ShopAction.SELL) + "§7 (clic droit)")
+							.addLore("§f§lStock: §7" + shopItem.getStock()+"§f/§8"+shopItem.getMaxStock())
+							.addLore("§f§lAchat: §b" + shopItem.calculatePrice(1, ShopAction.BUY) + "$"+ shopItem.getPriceVariationString(ShopAction.BUY) + "§7 (clic gauche)")
+							.addLore("§f§lVente: §b" + shopItem.calculatePrice(1, ShopAction.SELL) + "$"+ shopItem.getPriceVariationString(ShopAction.SELL) + "§7 (clic droit)")
 							.addLore("§7Clic molette pour tout vendre.")
 							.build());
 				}

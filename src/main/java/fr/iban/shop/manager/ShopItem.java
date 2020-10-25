@@ -87,12 +87,16 @@ public class ShopItem {
 	}
 
 	public double getModifier(int currentstock) {
-		return (double)Math.round(((double)maxStock/2)/currentstock * 100)/100;
+		double denominateur = currentstock;
+		if(currentstock < maxStock/4.0) {
+			denominateur = maxStock/4.0;
+		}
+		return ((double)maxStock/2)/denominateur;
 	}
 
 	private double getPercent(int currentstock) {
-		double percent = (1-getModifier(currentstock))*100;
-		return (double)Math.round(percent*10)/10;
+		double percent = (1-getModifier(currentstock));
+		return Math.round(percent*1000)/10.0;
 	}
 
 	public String getPriceVariationString(ShopAction action) {
@@ -100,9 +104,9 @@ public class ShopItem {
 		if(percent == 0) {
 			return "";
 		}else if(percent > 0){
-			return (action == ShopAction.BUY ? ChatColor.GREEN : ChatColor.RED) + " ⬇ " + percent + "%";
+			return (action == ShopAction.BUY ? ChatColor.GREEN : ChatColor.RED) + " ⬇ -" + percent + "%";
 		}else {
-			return  (action == ShopAction.BUY ? ChatColor.RED : ChatColor.GREEN) + " ⬆ " + Math.abs(percent) + "%";
+			return  (action == ShopAction.BUY ? ChatColor.RED : ChatColor.GREEN) + " ⬆ +" + Math.abs(percent) + "%";
 		}
 	}
 

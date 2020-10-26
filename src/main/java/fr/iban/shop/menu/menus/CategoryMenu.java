@@ -7,6 +7,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.ItemStack;
 
 import fr.iban.shop.Shop;
@@ -41,39 +42,50 @@ public class CategoryMenu extends PaginatedMenu{
 		ShopManager sm = Shop.getInstance().getShopManager();
 		List<ShopItem> shopItems = sm.getShopItems().get(category).values().stream().collect(Collectors.toList());
 
-		if(e.getCurrentItem().getType().toString().toUpperCase().endsWith("GLASS_PANE")) {
-			if(e.getCurrentItem().getItemMeta().getDisplayName().equalsIgnoreCase(ChatColor.GREEN + "précédent")){
-				if (page == 0){
-					p.sendMessage("§cVous êtes déjà à la première page.");
-				}else{
-					page = page - 1;
-					super.open();
+		if(e.getInventory().getType() != InventoryType.PLAYER) {
+			if(e.getCurrentItem().getType().toString().toUpperCase().endsWith("GLASS_PANE")) {
+				if(e.getCurrentItem().getItemMeta().getDisplayName().equalsIgnoreCase(ChatColor.GREEN + "précédent")){
+					if (page == 0){
+						p.sendMessage("§cVous êtes déjà à la première page.");
+					}else{
+						page = page - 1;
+						super.open();
+					}
+				}else if(e.getCurrentItem().getItemMeta().getDisplayName().equalsIgnoreCase(ChatColor.GREEN  + "suivant")){
+					if ((index + 1) <= shopItems.size()){
+						page = page + 1;
+						super.open();
+					}else{
+						p.sendMessage("§cVous êtes déjà à la dernière page.");
+					}
+				}else if(e.getCurrentItem().getItemMeta().getDisplayName().equalsIgnoreCase(ChatColor.DARK_RED + "fermer")){
+					p.closeInventory();
 				}
-			}else if(e.getCurrentItem().getItemMeta().getDisplayName().equalsIgnoreCase(ChatColor.GREEN  + "suivant")){
-				if ((index + 1) <= shopItems.size()){
-					page = page + 1;
-					super.open();
-				}else{
-					p.sendMessage("§cVous êtes déjà à la dernière page.");
+			}else {
+				ShopItem clickedItem = getMatch(shopItems, e.getCurrentItem());
+
+				if(clickedItem == null) return;		
+
+				if(e.getClick() == ClickType.RIGHT) {
+					//Vendre
+					new ConfirmMenu(p, clickedItem, ShopAction.SELL).open();
+				}else if(e.getClick() == ClickType.LEFT) {
+					//Acheter
+					new ConfirmMenu(p, clickedItem, ShopAction.BUY).open();
+				}else if(e.getClick() == ClickType.CREATIVE) {
+					//Tout vendre
+				}else if(e.getClick() == ClickType.SHIFT_RIGHT && player.hasPermission("shop.admin")) {
+					new ShopItemEditMenu(p, clickedItem).open();
 				}
-			}else if(e.getCurrentItem().getItemMeta().getDisplayName().equalsIgnoreCase(ChatColor.DARK_RED + "fermer")){
-				p.closeInventory();
+
 			}
-		}else {
-			ShopItem clickedItem = getMatch(shopItems, e.getCurrentItem());
-
-			if(clickedItem == null) return;		
-
-			if(e.getClick() == ClickType.RIGHT) {
-				//Vendre
-				new ConfirmMenu(p, clickedItem, ShopAction.SELL).open();
-			}else if(e.getClick() == ClickType.LEFT) {
-				//Acheter
-				new ConfirmMenu(p, clickedItem, ShopAction.BUY).open();
-			}else if(e.getClick() == ClickType.CREATIVE) {
-				//Tout vendre
-			}
-
+		}else if(e.getClick() == ClickType.SHIFT_RIGHT && player.hasPermission("shop.admin")) {
+			ShopItem item = new ShopItem(
+					sm.getShopItems().get(category).size() + 1,
+					1, 1, new ItemBuilder(e.getCurrentItem().clone()).setAmount(1).build(), category, 0, 0);
+			sm.saveShop(item);
+			sm.reloadShops();
+			new ShopItemEditMenu(p, item).open();
 		}
 	}
 
@@ -102,16 +114,20 @@ public class CategoryMenu extends PaginatedMenu{
 				if(index >= shopItems.size()) break;
 				if (shopItems.get(index) != null){
 					ShopItem shopItem = shopItems.get(index);
-					inventory.addItem(new ItemBuilder(shopItem.getItem().clone())
-							.addLore("§f§lStock: §7" + shopItem.getStock()+"§f/§8"+shopItem.getMaxStock())
-							.addLore("§f§lAchat: §b" + shopItem.calculatePrice(1, ShopAction.BUY) + "$"+ shopItem.getPriceVariationString(ShopAction.BUY) + "§7 (clic gauche)")
-							.addLore("§f§lVente: §b" + shopItem.calculatePrice(1, ShopAction.SELL) + "$"+ shopItem.getPriceVariationString(ShopAction.SELL) + "§7 (clic droit)")
-							.addLore("§7Clic molette pour tout vendre.")
-							.build());
+					inventory.addItem(getShopDisplayItem(shopItem));
 				}
 			}
 		}
 
+	}
+
+	private ItemStack getShopDisplayItem(ShopItem shopItem) {
+		return new ItemBuilder(shopItem.getItem().clone())
+				.addLore("§f§lStock: §7" + shopItem.getStock()+"§f/§8"+shopItem.getMaxStock())
+				.addLore("§f§lAchat: §b" + shopItem.calculatePrice(1, ShopAction.BUY) + Shop.SYMBOLE + shopItem.getPriceVariationString(ShopAction.BUY) + "§7 (clic gauche)")
+				.addLore("§f§lVente: §b" + shopItem.calculatePrice(1, ShopAction.SELL) + Shop.SYMBOLE + shopItem.getPriceVariationString(ShopAction.SELL) + "§7 (clic droit)")
+				.addLore("§7Clic molette pour tout vendre.")
+				.build();
 	}
 
 	private ShopItem getMatch(List<ShopItem> fromlist, ItemStack item) {

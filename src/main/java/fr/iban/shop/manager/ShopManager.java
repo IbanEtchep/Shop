@@ -1,5 +1,6 @@
 package fr.iban.shop.manager;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
@@ -60,6 +61,24 @@ public class ShopManager {
 		shopsConfig.set(itemPath+"item", item.getItem());
 		shopsConfig.set(itemPath+"maxstock", item.getMaxStock());
 		shopsConfig.set(itemPath+"stock", item.getStock());
+	}
+	
+	public void reloadShops() {
+		saveShops();
+		loadShops();
+	}
+	
+	public void saveShops() {
+		for(Map<Integer, ShopItem> category : getShopItems().values()) {
+			for(ShopItem item : category.values()) {
+				saveShop(item);
+			}
+		}
+        try {
+			shopsConfig.save(Shop.getInstance().getShopsFile());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	public Map<String, Map<Integer, ShopItem>> getShopItems() {

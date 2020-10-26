@@ -1,6 +1,7 @@
 package fr.iban.shop.commands;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import org.bukkit.command.Command;
@@ -10,6 +11,7 @@ import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 
 import fr.iban.shop.Shop;
+import fr.iban.shop.manager.ShopManager;
 import fr.iban.shop.menu.menus.CategoryMenu;
 
 public class ShopCMD implements CommandExecutor, TabCompleter {
@@ -17,17 +19,31 @@ public class ShopCMD implements CommandExecutor, TabCompleter {
 	@Override
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 		if(sender instanceof Player) {
-			
+
 			Player player = (Player)sender;
-			
+
 			if(args.length == 0) {
 				//TODO help
 			}else {
 				switch (args[0]) {
-				case "":
-					
+				case "reload":
+					if(args.length == 1 && player.hasPermission("shop.admin")) {
+						ShopManager sm = Shop.getInstance().getShopManager();
+						sm.reloadShops();
+						player.sendMessage("§aReload des shops effectué.");
+					}
 					break;
-
+				case "addcategory":
+					if(args.length == 2 && player.hasPermission("shop.admin")) {
+						ShopManager sm = Shop.getInstance().getShopManager();
+						if(!sm.getShopItems().containsKey(args[1])) {
+							sm.getShopItems().put(args[1], new HashMap<>());
+							player.sendMessage("§aCatégorie " + args[1] + " ajoutée.");
+						}else {
+							player.sendMessage("§cCette catégorie existe déjà.");
+						}
+					}
+					break;
 				default:
 					if(args.length == 1) {
 						new CategoryMenu(player, args[0]).open();
@@ -35,7 +51,7 @@ public class ShopCMD implements CommandExecutor, TabCompleter {
 					break;
 				}
 			}
-			
+
 		}
 		return false;
 	}
@@ -44,6 +60,10 @@ public class ShopCMD implements CommandExecutor, TabCompleter {
 	public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
 		List<String> list = new ArrayList<>();
 		if(args.length == 1) {
+			list.addAll(Shop.getInstance().getShopManager().getShopItems().keySet());
+			return list;
+		}
+		if(args.length == 2 && args[1].equalsIgnoreCase("additem")) {
 			list.addAll(Shop.getInstance().getShopManager().getShopItems().keySet());
 			return list;
 		}

@@ -81,7 +81,7 @@ public class ConfirmMenu extends Menu {
 
 		double prix = shopItem.calculatePrice(amount, action);
 
-		inventory.setItem(22, new ItemBuilder(shopItem.getItem().clone()).setAmount(amount).addLore("§d§lPrix : §5§l" + prix + "$").build());
+		inventory.setItem(22, new ItemBuilder(shopItem.getItem().clone()).setAmount(amount).addLore("§d§lPrix : §5§l" + prix + Shop.SYMBOLE).build());
 
 		if(amount > 1)
 			inventory.setItem(18, new ItemBuilder(Material.RED_STAINED_GLASS_PANE).setName("§c§lMettre à 1").build());

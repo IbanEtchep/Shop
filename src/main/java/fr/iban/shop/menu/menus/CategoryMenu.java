@@ -70,9 +70,13 @@ public class CategoryMenu extends PaginatedMenu{
 				}else if(e.getClick() == ClickType.LEFT) {
 					//Acheter
 					new ConfirmMenu(p, clickedItem, ShopAction.BUY).open();
-				}else if(e.getClick() == ClickType.CREATIVE) {
+				}else if(e.getClick() == ClickType.MIDDLE) {
 					//Tout vendre
-					Shop.getInstance().getTransactionManager().sellItem(p, clickedItem, Shop.getInstance().getTransactionManager().getSellAllAmount(clickedItem, player));
+					int amount = Shop.getInstance().getTransactionManager().getSellAllAmount(clickedItem, player);
+					if(amount > 0) {
+						Shop.getInstance().getTransactionManager().sellItem(p, clickedItem, amount);
+						super.open();
+					}
 				}else if(e.getClick() == ClickType.SHIFT_RIGHT && player.hasPermission("shop.admin")) {
 					new ShopItemEditMenu(p, clickedItem).open();
 				}
@@ -123,12 +127,12 @@ public class CategoryMenu extends PaginatedMenu{
 	private ItemStack getShopDisplayItem(ShopItem shopItem) {
 		int amount = Shop.getInstance().getTransactionManager().getSellAllAmount(shopItem, player);
 		ItemStack it = new ItemBuilder(shopItem.getItem().clone())
-				.addLore(shopItem.getMaxStock() == 0 ? "" : "§f§lStock: §7" + shopItem.getStock()+"§f/§8"+shopItem.getMaxStock())
+				.addLore(shopItem.getMaxStock() == 0 ? "§f§lStock: §7illimité" : "§f§lStock: §7" + shopItem.getStock()+"§f/§8"+shopItem.getMaxStock())
 				.addLore("§f§lAchat: §b" + shopItem.calculatePrice(1, ShopAction.BUY) + Shop.SYMBOLE + shopItem.getPriceVariationString(ShopAction.BUY) + "§7 (clic gauche)")
 				.addLore("§f§lVente: §b" + shopItem.calculatePrice(1, ShopAction.SELL) + Shop.SYMBOLE + shopItem.getPriceVariationString(ShopAction.SELL) + "§7 (clic droit)")
 				.build();
 		if(amount != 0) {
-			it = new ItemBuilder(it).addLore("§f§lVente rapide : §bx" + amount + "="+ shopItem.calculatePrice(amount, ShopAction.SELL)+ Shop.SYMBOLE + " §7(clic molette)").build();
+			it = new ItemBuilder(it).addLore("§f§lVente rapide : §b×" + amount + "➪"+ shopItem.calculatePrice(amount, ShopAction.SELL)+ Shop.SYMBOLE + " §7(clic molette)").build();
 		}
 		return it;
 	}

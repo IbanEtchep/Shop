@@ -52,7 +52,7 @@ public class ShopItemEditMenu extends Menu{
 		case "§f§lStock":
 			select(Selected.STOCK);
 			break;
-		case "f§lMaxStock":
+		case "§f§lMaxStock":
 			select(Selected.MAXSTOCK);
 			break;
 		case "§4§lSupprimer":

@@ -103,7 +103,7 @@ public class ConfirmMenu extends Menu {
 		inventory.setItem(39, new ItemBuilder(Material.RED_STAINED_GLASS).setName("§cRetour").build());
 		if(action == ShopAction.SELL) {
 			int sellAllAmount = Shop.getInstance().getTransactionManager().getSellAllAmount(shopItem, player);
-			inventory.setItem(40, new ItemBuilder(Material.LIME_STAINED_GLASS).setName("§aTout vendre pour :§f" + shopItem.calculatePrice(sellAllAmount, ShopAction.SELL)+ Shop.SYMBOLE).build());
+			inventory.setItem(40, new ItemBuilder(Material.LIME_STAINED_GLASS).setName("§aTout vendre pour : §f" + shopItem.calculatePrice(sellAllAmount, ShopAction.SELL)+ Shop.SYMBOLE).build());
 		}
 		inventory.setItem(41, new ItemBuilder(Material.GREEN_STAINED_GLASS).setName("§aConfirmer").build());
 	}

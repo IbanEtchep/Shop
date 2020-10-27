@@ -14,7 +14,7 @@ import net.milkbowl.vault.economy.EconomyResponse;
 public class TransactionManager {
 
 	public void buyItem(Player player, ShopItem shopItem, int amount){
-		if(shopItem.getStock() - amount <= 1) {
+		if(shopItem.getMaxStock() != 0 && shopItem.getStock() - amount <= 1) {
 			player.sendMessage("§cCet item n'est plus en stock.");
 			return;
 		}
@@ -40,7 +40,7 @@ public class TransactionManager {
 
 
 	public void sellItem(Player player, ShopItem shopItem, int amount) {
-		if(shopItem.getStock() + amount >= shopItem.getMaxStock()) {
+		if(shopItem.getMaxStock() != 0 && shopItem.getStock() + amount >= shopItem.getMaxStock()) {
 			player.sendMessage("§cLes réserves sont pleines, impossible de vendre davantage de cet item.");
 			return;
 		}

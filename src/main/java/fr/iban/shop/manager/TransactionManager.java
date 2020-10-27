@@ -1,9 +1,11 @@
 package fr.iban.shop.manager;
 
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import fr.iban.shop.Shop;
+import fr.iban.shop.events.ShopActionEvent;
 import fr.iban.shop.utils.ItemBuilder;
 import fr.iban.shop.utils.ShopAction;
 import net.milkbowl.vault.economy.Economy;
@@ -29,6 +31,7 @@ public class TransactionManager {
 				}
 				shopItem.setStock(shopItem.getStock() - amount);
 				player.sendMessage("§aVous avez acheté " + amount + " " + item.getType().name() + " pour " + prix + "$");
+				Bukkit.getPluginManager().callEvent(new ShopActionEvent(ShopAction.BUY));
 			}
 		}else {
 			player.sendMessage("§cVous n'avez pas les fonds nécessaires.");
@@ -52,12 +55,23 @@ public class TransactionManager {
 				player.updateInventory();
 				player.sendMessage("§aVous avez vendu " + amount + " " + item.getType().name() + " pour " + prix + "$");	
 				shopItem.setStock(shopItem.getStock() + amount);
+				Bukkit.getPluginManager().callEvent(new ShopActionEvent(ShopAction.SELL));
 			}
 		}else {
 			player.sendMessage("§cVous n'avez pas les items que vous voulez vendre.");
 		}
 
 
+	}
+	
+	public int getSellAllAmount(ShopItem item, Player player) {
+		int amount = 0;
+		for(ItemStack it : player.getInventory().getStorageContents()) {
+			if(it != null && it.isSimilar(item.getItem())) {
+				amount += it.getAmount();
+			}
+		}
+		return amount;
 	}
 
 	private boolean isInventoryFull(Player player) {

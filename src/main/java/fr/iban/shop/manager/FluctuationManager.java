@@ -3,9 +3,11 @@ package fr.iban.shop.manager;
 import java.util.Map;
 import java.util.Random;
 
+import org.bukkit.Bukkit;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import fr.iban.shop.Shop;
+import fr.iban.shop.events.ShopFluctuateEvent;
 
 public class FluctuationManager {
 	
@@ -20,6 +22,7 @@ public class FluctuationManager {
 	public void fluctuate(double maxModifier) {
 		for(Map<Integer, ShopItem> category : shopmanager.getShopItems().values()) {
 			for(ShopItem item : category.values()) {
+				if(item.getMaxStock() == 0) continue;
 				
 				final double modifier = item.getModifier(item.getStock());
 				int add = (int) (item.getMaxStock()* nextDouble(0, maxModifier));
@@ -36,6 +39,7 @@ public class FluctuationManager {
 				}
 			}
 		}
+		Bukkit.getPluginManager().callEvent(new ShopFluctuateEvent());
 	}
 	
 	public void scheduleFluctuation(long period, double max) {

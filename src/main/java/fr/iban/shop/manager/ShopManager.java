@@ -5,9 +5,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
 
+import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 
 import fr.iban.shop.Shop;
+import fr.iban.shop.events.ShopReloadEvent;
 
 public class ShopManager {
 
@@ -66,6 +68,7 @@ public class ShopManager {
 	public void reloadShops() {
 		saveShops();
 		loadShops();
+		Bukkit.getPluginManager().callEvent(new ShopReloadEvent());
 	}
 	
 	public void saveShops() {

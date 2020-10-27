@@ -7,9 +7,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.ItemStack;
-
 import fr.iban.shop.Shop;
 import fr.iban.shop.manager.ShopItem;
 import fr.iban.shop.manager.ShopManager;
@@ -42,7 +40,7 @@ public class CategoryMenu extends PaginatedMenu{
 		ShopManager sm = Shop.getInstance().getShopManager();
 		List<ShopItem> shopItems = sm.getShopItems().get(category).values().stream().collect(Collectors.toList());
 
-		if(e.getInventory().getType() != InventoryType.PLAYER) {
+		if(e.getClickedInventory() == e.getView().getTopInventory()) {
 			if(e.getCurrentItem().getType().toString().toUpperCase().endsWith("GLASS_PANE")) {
 				if(e.getCurrentItem().getItemMeta().getDisplayName().equalsIgnoreCase(ChatColor.GREEN + "précédent")){
 					if (page == 0){
@@ -74,6 +72,7 @@ public class CategoryMenu extends PaginatedMenu{
 					new ConfirmMenu(p, clickedItem, ShopAction.BUY).open();
 				}else if(e.getClick() == ClickType.CREATIVE) {
 					//Tout vendre
+					Shop.getInstance().getTransactionManager().sellItem(p, clickedItem, Shop.getInstance().getTransactionManager().getSellAllAmount(clickedItem, player));
 				}else if(e.getClick() == ClickType.SHIFT_RIGHT && player.hasPermission("shop.admin")) {
 					new ShopItemEditMenu(p, clickedItem).open();
 				}
@@ -122,12 +121,16 @@ public class CategoryMenu extends PaginatedMenu{
 	}
 
 	private ItemStack getShopDisplayItem(ShopItem shopItem) {
-		return new ItemBuilder(shopItem.getItem().clone())
-				.addLore("§f§lStock: §7" + shopItem.getStock()+"§f/§8"+shopItem.getMaxStock())
+		int amount = Shop.getInstance().getTransactionManager().getSellAllAmount(shopItem, player);
+		ItemStack it = new ItemBuilder(shopItem.getItem().clone())
+				.addLore(shopItem.getMaxStock() == 0 ? "" : "§f§lStock: §7" + shopItem.getStock()+"§f/§8"+shopItem.getMaxStock())
 				.addLore("§f§lAchat: §b" + shopItem.calculatePrice(1, ShopAction.BUY) + Shop.SYMBOLE + shopItem.getPriceVariationString(ShopAction.BUY) + "§7 (clic gauche)")
 				.addLore("§f§lVente: §b" + shopItem.calculatePrice(1, ShopAction.SELL) + Shop.SYMBOLE + shopItem.getPriceVariationString(ShopAction.SELL) + "§7 (clic droit)")
-				.addLore("§7Clic molette pour tout vendre.")
 				.build();
+		if(amount != 0) {
+			it = new ItemBuilder(it).addLore("§f§lVente rapide : §bx" + amount + "="+ shopItem.calculatePrice(amount, ShopAction.SELL)+ Shop.SYMBOLE + " §7(clic molette)").build();
+		}
+		return it;
 	}
 
 	private ShopItem getMatch(List<ShopItem> fromlist, ItemStack item) {

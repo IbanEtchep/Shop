@@ -18,40 +18,38 @@ public class ShopCMD implements CommandExecutor, TabCompleter {
 
 	@Override
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-		if(sender instanceof Player) {
-
-			Player player = (Player)sender;
-
-			if(args.length == 0) {
-				//TODO help
-			}else {
-				switch (args[0]) {
-				case "reload":
-					if(args.length == 1 && player.hasPermission("shop.admin")) {
-						ShopManager sm = Shop.getInstance().getShopManager();
-						sm.reloadShops();
-						player.sendMessage("§aReload des shops effectué.");
+		if(args.length == 0) {
+			//TODO help
+		}else {
+			switch (args[0]) {
+			case "reload":
+				if(args.length == 1 && sender.hasPermission("shop.admin")) {
+					ShopManager sm = Shop.getInstance().getShopManager();
+					sm.reloadShops();
+					sender.sendMessage("§aReload des shops effectué.");
+				}
+				break;
+			case "addcategory":
+				if(args.length == 2 && sender.hasPermission("shop.admin")) {
+					ShopManager sm = Shop.getInstance().getShopManager();
+					if(!sm.getShopItems().containsKey(args[1])) {
+						sm.getShopItems().put(args[1], new HashMap<>());
+						sender.sendMessage("§aCatégorie " + args[1] + " ajoutée.");
+					}else {
+						sender.sendMessage("§cCette catégorie existe déjà.");
 					}
-					break;
-				case "addcategory":
-					if(args.length == 2 && player.hasPermission("shop.admin")) {
-						ShopManager sm = Shop.getInstance().getShopManager();
-						if(!sm.getShopItems().containsKey(args[1])) {
-							sm.getShopItems().put(args[1], new HashMap<>());
-							player.sendMessage("§aCatégorie " + args[1] + " ajoutée.");
-						}else {
-							player.sendMessage("§cCette catégorie existe déjà.");
-						}
-					}
-					break;
-				default:
+				}
+				break;
+			default:
+				if(sender instanceof Player) {
+
+					Player player = (Player)sender;
 					if(args.length == 1) {
 						new CategoryMenu(player, args[0]).open();
 					}
-					break;
 				}
+				break;
 			}
-
 		}
 		return false;
 	}

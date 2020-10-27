@@ -12,6 +12,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import fr.iban.shop.commands.ShopCMD;
 import fr.iban.shop.listeners.InventoryListener;
+import fr.iban.shop.listeners.ShopListeners;
 import fr.iban.shop.manager.FluctuationManager;
 import fr.iban.shop.manager.ShopManager;
 import fr.iban.shop.manager.TransactionManager;
@@ -28,7 +29,7 @@ public final class Shop extends JavaPlugin {
     private FluctuationManager fluctuationManager;
     private static Economy econ = null;
     
-    public static final String SYMBOLE = "§e⛃§r";
+    public static final String SYMBOLE = " §e⛃§r";
 
     @Override
     public void onEnable() {
@@ -38,11 +39,6 @@ public final class Shop extends JavaPlugin {
         transactionManager = new TransactionManager();
         fluctuationManager = new FluctuationManager(shopManager);
         PluginManager pm = getServer().getPluginManager();
-
-//        shopManager.saveShop(new ShopItem(1, 10.3, 0.4, new ItemStack(Material.DIAMOND), "minerais"));
-//        shopManager.saveShop(new ShopItem(2, 10.4, 0.4, new ItemStack(Material.IRON_INGOT), "minerais"));
-//        shopManager.saveShop(new ShopItem(3, 10.3, 0.4, new ItemStack(Material.REDSTONE), "minerais"));
-//        shopManager.saveShop(new ShopItem(4, 100.3, 0.4, new ItemStack(Material.COAL), "minerais"));
         
         //Vault setup
         if (!setupEconomy() ) {
@@ -52,11 +48,12 @@ public final class Shop extends JavaPlugin {
         }
 
         shopManager.loadShops();
-        fluctuationManager.scheduleFluctuation(20L*60*30, 0.01D);
+        fluctuationManager.scheduleFluctuation(20L*10, 0.01D);
         /*
          * Register listeners :
          */
         pm.registerEvents(new InventoryListener(), this);
+        pm.registerEvents(new ShopListeners(), this);
         /*
          * Register Commands:
          */

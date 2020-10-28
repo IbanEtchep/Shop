@@ -42,13 +42,20 @@ public class FluctuationManager {
 		Bukkit.getPluginManager().callEvent(new ShopFluctuateEvent());
 	}
 	
+	private double modifier = 1;
+	
 	public void scheduleFluctuation(long period, double max) {
 		new BukkitRunnable() {
 			@Override
 			public void run() {
+				if(modifier != 1+0.05*Bukkit.getOnlinePlayers().size()) {
+					modifier = 1+0.05*Bukkit.getOnlinePlayers().size();
+					scheduleFluctuation(period, max);
+					cancel();
+				}
 				fluctuate(max);
 			}
-		}.runTaskTimer(Shop.getInstance(), 0, period);
+		}.runTaskTimer(Shop.getInstance(), 0, (long) (period/modifier));
 	}
 	
 	public double nextDouble(double minimum, double maximum)

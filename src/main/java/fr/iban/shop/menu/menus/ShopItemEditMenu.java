@@ -2,6 +2,7 @@ package fr.iban.shop.menu.menus;
 
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 import fr.iban.shop.Shop;
@@ -14,14 +15,14 @@ public class ShopItemEditMenu extends Menu{
 
 	private ShopItem shopItem;
 
-	private enum Selected {
+	private enum Selection {
 		BUY,
 		SELL,
 		STOCK,
 		MAXSTOCK
 	}
 
-	private Selected selected = null;
+	private Selection selection = null;
 
 	private double value;
 
@@ -44,16 +45,25 @@ public class ShopItemEditMenu extends Menu{
 	public void handleMenu(InventoryClickEvent e) {
 		switch (e.getCurrentItem().getItemMeta().getDisplayName()) {
 		case "§f§lPrix d'achat":
-			select(Selected.BUY);
+			select(Selection.BUY);
+			if(e.getClick() == ClickType.SHIFT_LEFT) {
+				value = shopItem.getSell()*100;
+				saveSelection();
+			}
 			break;
 		case "§f§lPrix de vente":
-			select(Selected.SELL);
+			select(Selection.SELL);
+			if(e.getClick() == ClickType.SHIFT_LEFT) {
+				value = shopItem.getBuy()/100;
+				saveSelection();
+			}
+			select(Selection.SELL);
 			break;
 		case "§f§lStock":
-			select(Selected.STOCK);
+			select(Selection.STOCK);
 			break;
 		case "§f§lMaxStock":
-			select(Selected.MAXSTOCK);
+			select(Selection.MAXSTOCK);
 			break;
 		case "§4§lSupprimer":
 			Shop.getInstance().getShopManager().getShopItems().get(shopItem.getCategory()).remove(shopItem.getId());
@@ -64,7 +74,7 @@ public class ShopItemEditMenu extends Menu{
 			new CategoryMenu(player, shopItem.getCategory()).open();
 			return;
 		case "§aConfirmer":
-			saveSelected();
+			saveSelection();
 			break;
 		default:
 			modifValue(e.getCurrentItem().getItemMeta().getDisplayName());
@@ -88,18 +98,18 @@ public class ShopItemEditMenu extends Menu{
 
 		inventory.setItem(4, getShopDisplayItem(shopItem));
 
-		inventory.setItem(10, new ItemBuilder(Material.GOLD_INGOT).setDisplayName("§f§lPrix d'achat").setGlow(selected == Selected.BUY).build());
-		inventory.setItem(12, new ItemBuilder(Material.GOLD_INGOT).setDisplayName("§f§lPrix de vente").setGlow(selected == Selected.SELL).build());
-		inventory.setItem(14, new ItemBuilder(Material.ACACIA_WOOD).setDisplayName("§f§lStock").setGlow(selected == Selected.STOCK).build());
-		inventory.setItem(16, new ItemBuilder(Material.BIRCH_WOOD).setDisplayName("§f§lMaxStock").setGlow(selected == Selected.MAXSTOCK).build());
+		inventory.setItem(10, new ItemBuilder(Material.GOLD_INGOT).setDisplayName("§f§lPrix d'achat").setGlow(selection == Selection.BUY).build());
+		inventory.setItem(12, new ItemBuilder(Material.GOLD_INGOT).setDisplayName("§f§lPrix de vente").setGlow(selection == Selection.SELL).build());
+		inventory.setItem(14, new ItemBuilder(Material.ACACIA_WOOD).setDisplayName("§f§lStock").setGlow(selection == Selection.STOCK).build());
+		inventory.setItem(16, new ItemBuilder(Material.BIRCH_WOOD).setDisplayName("§f§lMaxStock").setGlow(selection == Selection.MAXSTOCK).build());
 
 		inventory.setItem(30, new ItemBuilder(Material.RED_STAINED_GLASS_PANE).setName("§c§l-1").build());
 		inventory.setItem(29, new ItemBuilder(Material.RED_STAINED_GLASS_PANE).setName("§c§l-10").build());
 		inventory.setItem(28, new ItemBuilder(Material.RED_STAINED_GLASS_PANE).setName("§c§l-100").build());
 		inventory.setItem(27, new ItemBuilder(Material.RED_STAINED_GLASS_PANE).setName("§c§l-1000").build());
 
-		if(selected != null)
-			inventory.setItem(31, new ItemBuilder(Material.NETHER_STAR).setName(selected + ": " + value).build());
+		if(selection != null)
+			inventory.setItem(31, new ItemBuilder(Material.NETHER_STAR).setName(selection + ": " + value).build());
 
 		inventory.setItem(32, new ItemBuilder(Material.GREEN_STAINED_GLASS_PANE).setName("§a§l+1").build());
 		inventory.setItem(33, new ItemBuilder(Material.GREEN_STAINED_GLASS_PANE).setName("§a§l+10").build());
@@ -123,10 +133,10 @@ public class ShopItemEditMenu extends Menu{
 				.build();
 	}
 
-	public void select(Selected select) {
-		saveSelected();
-		selected = select;
-		switch (selected) {
+	public void select(Selection select) {
+		saveSelection();
+		selection = select;
+		switch (selection) {
 		case BUY:
 			value = shopItem.getBuy();
 			break;
@@ -142,12 +152,12 @@ public class ShopItemEditMenu extends Menu{
 		default:
 			break;
 		}
-		player.sendMessage("§aVous avez sélectionné : " + selected);
+		player.sendMessage("§aVous avez sélectionné : " + selection);
 	}
 
-	public void saveSelected() {
-		if(selected != null) {
-			switch (selected) {
+	public void saveSelection() {
+		if(selection != null) {
+			switch (selection) {
 			case BUY:
 				shopItem.setBuy(value);
 				player.sendMessage("§aPrix d'achat mis à : §2" + value);

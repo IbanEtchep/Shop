@@ -44,8 +44,10 @@ public class ShopCMD implements CommandExecutor, TabCompleter {
 				if(sender instanceof Player) {
 
 					Player player = (Player)sender;
-					if(args.length == 1) {
+					if(args.length == 1 && player.hasPermission("shop.open")) {
 						new CategoryMenu(player, args[0]).open();
+					}else {
+						player.sendMessage("§cVous n'avez pas la permission.");
 					}
 				}
 				break;

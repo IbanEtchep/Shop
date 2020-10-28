@@ -3,6 +3,7 @@ package fr.iban.shop.menu.menus;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang.StringUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
@@ -26,7 +27,7 @@ public class CategoryMenu extends PaginatedMenu{
 
 	@Override
 	public String getMenuName() {
-		return "§6Shop §8> §e" + category;
+		return "§6Shop §8> §e" + StringUtils.capitalize(category);
 	}
 
 	@Override
@@ -66,16 +67,22 @@ public class CategoryMenu extends PaginatedMenu{
 
 				if(e.getClick() == ClickType.RIGHT) {
 					//Vendre
-					new ConfirmMenu(p, clickedItem, ShopAction.SELL).open();
+					if(clickedItem.getSell() > 0) {
+						new ConfirmMenu(p, clickedItem, ShopAction.SELL).open();
+					}
 				}else if(e.getClick() == ClickType.LEFT) {
 					//Acheter
-					new ConfirmMenu(p, clickedItem, ShopAction.BUY).open();
+					if(clickedItem.getBuy() > 0) {
+						new ConfirmMenu(p, clickedItem, ShopAction.BUY).open();
+					}
 				}else if(e.getClick() == ClickType.MIDDLE) {
 					//Tout vendre
-					int amount = Shop.getInstance().getTransactionManager().getSellAllAmount(clickedItem, player);
-					if(amount > 0) {
-						Shop.getInstance().getTransactionManager().sellItem(p, clickedItem, amount);
-						super.open();
+					if(clickedItem.getSell() > 0) {
+						int amount = Shop.getInstance().getTransactionManager().getSellAllAmount(clickedItem, player);
+						if(amount > 0) {
+							Shop.getInstance().getTransactionManager().sellItem(p, clickedItem, amount);
+							super.open();
+						}
 					}
 				}else if(e.getClick() == ClickType.SHIFT_RIGHT && player.hasPermission("shop.admin")) {
 					new ShopItemEditMenu(p, clickedItem).open();
@@ -83,12 +90,14 @@ public class CategoryMenu extends PaginatedMenu{
 
 			}
 		}else if(e.getClick() == ClickType.SHIFT_RIGHT && player.hasPermission("shop.admin")) {
+			for (ShopItem shopItem : shopItems) {
+				if(shopItem.getItem().isSimilar(e.getCurrentItem())) return;
+			}
 			ShopItem item = new ShopItem(
 					sm.getShopItems().get(category).size() + 1,
-					1, 1, new ItemBuilder(e.getCurrentItem().clone()).setAmount(1).build(), category, 0, 0);
+					0, 0, new ItemBuilder(e.getCurrentItem().clone()).setAmount(1).build(), category, 0, 0);
 			sm.saveShop(item);
 			sm.reloadShops();
-			new ShopItemEditMenu(p, item).open();
 		}
 	}
 
@@ -125,15 +134,20 @@ public class CategoryMenu extends PaginatedMenu{
 	}
 
 	private ItemStack getShopDisplayItem(ShopItem shopItem) {
-		int amount = Shop.getInstance().getTransactionManager().getSellAllAmount(shopItem, player);
 		ItemStack it = new ItemBuilder(shopItem.getItem().clone())
 				.addLore(shopItem.getMaxStock() == 0 ? "§f§lStock: §7illimité" : "§f§lStock: §7" + shopItem.getStock()+"§f/§8"+shopItem.getMaxStock())
-				.addLore("§f§lAchat: §b" + shopItem.calculatePrice(1, ShopAction.BUY) + Shop.SYMBOLE + shopItem.getPriceVariationString(ShopAction.BUY) + "§7 (clic gauche)")
-				.addLore("§f§lVente: §b" + shopItem.calculatePrice(1, ShopAction.SELL) + Shop.SYMBOLE + shopItem.getPriceVariationString(ShopAction.SELL) + "§7 (clic droit)")
 				.build();
-		if(amount != 0) {
-			it = new ItemBuilder(it).addLore("§f§lVente rapide : §b×" + amount + "➪"+ shopItem.calculatePrice(amount, ShopAction.SELL)+ Shop.SYMBOLE + " §7(clic molette)").build();
+		if(shopItem.getBuy() != 0) {
+			it = new ItemBuilder(it).addLore("§f§lAchat: §b" + shopItem.calculatePrice(1, ShopAction.BUY) + Shop.SYMBOLE + shopItem.getPriceVariationString(ShopAction.BUY) + "§7 (clic gauche)").build();
 		}
+		if(shopItem.getSell() != 0) {
+			int amount = Shop.getInstance().getTransactionManager().getSellAllAmount(shopItem, player);
+			it = new ItemBuilder(it).addLore("§f§lVente: §b" + shopItem.calculatePrice(1, ShopAction.SELL) + Shop.SYMBOLE + shopItem.getPriceVariationString(ShopAction.SELL) + "§7 (clic droit)").build();
+			if(amount != 0) {
+				it = new ItemBuilder(it).addLore("§f§lVente rapide : §b×" + amount + "➪"+ shopItem.calculatePrice(amount, ShopAction.SELL)+ Shop.SYMBOLE + " §7(clic molette)").build();
+			}
+		}
+
 		return it;
 	}
 

@@ -3,7 +3,6 @@ package fr.iban.shop.commands;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -29,6 +28,13 @@ public class ShopCMD implements CommandExecutor, TabCompleter {
 					sender.sendMessage("§aReload des shops effectué.");
 				}
 				break;
+			case "reloadconfig":
+				if(args.length == 1 && sender.hasPermission("shop.admin")) {
+					ShopManager sm = Shop.getInstance().getShopManager();
+					sm.loadShops();
+					sender.sendMessage("§aReload de la configuration effectué.");
+				}
+				break;
 			case "addcategory":
 				if(args.length == 2 && sender.hasPermission("shop.admin")) {
 					ShopManager sm = Shop.getInstance().getShopManager();
@@ -40,6 +46,14 @@ public class ShopCMD implements CommandExecutor, TabCompleter {
 					}
 				}
 				break;
+//			case "changePrices":
+//				ShopManager sm = Shop.getInstance().getShopManager();
+//				for (Map<Integer, ShopItem> category : sm.getShopItems().values()) {
+//					for (ShopItem shopItem : category.values()) {
+//						shopItem.setBuy(shopItem.getSell()*10);
+//					}
+//				}
+//				break;
 			default:
 				if(sender instanceof Player) {
 

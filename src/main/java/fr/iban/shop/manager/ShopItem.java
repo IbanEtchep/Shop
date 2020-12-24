@@ -15,6 +15,7 @@ public class ShopItem {
 	private String category;
 	private int maxStock = 0;
 	private int stock = 0;
+	private boolean isCommand;
 
 	public ShopItem(int id, double buy, Material material, String category, int maxstock) {
 		this(id, buy, buy/10, new ItemStack(material), category, maxstock, maxstock/2);

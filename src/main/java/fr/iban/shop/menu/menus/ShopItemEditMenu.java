@@ -47,14 +47,14 @@ public class ShopItemEditMenu extends Menu{
 		case "§f§lPrix d'achat":
 			select(Selection.BUY);
 			if(e.getClick() == ClickType.SHIFT_LEFT) {
-				value = shopItem.getSell()*100;
+				value = shopItem.getSell()*10;
 				saveSelection();
 			}
 			break;
 		case "§f§lPrix de vente":
 			select(Selection.SELL);
 			if(e.getClick() == ClickType.SHIFT_LEFT) {
-				value = shopItem.getBuy()/100;
+				value = shopItem.getBuy()/10;
 				saveSelection();
 			}
 			select(Selection.SELL);
@@ -67,6 +67,7 @@ public class ShopItemEditMenu extends Menu{
 			break;
 		case "§4§lSupprimer":
 			Shop.getInstance().getShopManager().getShopItems().get(shopItem.getCategory()).remove(shopItem.getId());
+			Shop.getInstance().getShopsConfig().set("shops."+shopItem.getCategory()+"."+shopItem.getId(), null);
 			player.sendMessage("§cL'article a bien été supprimé.");
 			player.closeInventory();
 			return;

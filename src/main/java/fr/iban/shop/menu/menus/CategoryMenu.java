@@ -153,7 +153,7 @@ public class CategoryMenu extends PaginatedMenu{
 
 	private ShopItem getMatch(List<ShopItem> fromlist, ItemStack item) {
 		for (ShopItem shopItem : fromlist) {
-			if(shopItem.getItem().getType() == item.getType()) {
+			if(shopItem.getItem().getType() == item.getType() && shopItem.getItem().getItemMeta().getDisplayName().equals(item.getItemMeta().getDisplayName())) {
 				return shopItem;
 			}
 		}

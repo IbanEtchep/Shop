@@ -1,6 +1,7 @@
 package fr.iban.shop.manager;
 
 import java.io.IOException;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
@@ -16,8 +17,8 @@ public class ShopManager {
 	private Shop shop;
 
 	private FileConfiguration shopsConfig;
-	
-	
+
+
 	//         CATEGORY     ID       ITEM        
 	private Map<String, Map<Integer, ShopItem>> shopItems = new HashMap<>();
 
@@ -63,20 +64,20 @@ public class ShopManager {
 		shopsConfig.set(itemPath+"maxstock", item.getMaxStock());
 		shopsConfig.set(itemPath+"stock", item.getStock());
 	}
-	
+
 	public void reloadShops() {
 		saveShops();
 		loadShops();
 		Bukkit.getPluginManager().callEvent(new ShopReloadEvent());
 	}
-	
+
 	public void saveShops() {
 		for(Map<Integer, ShopItem> category : getShopItems().values()) {
 			for(ShopItem item : category.values()) {
 				saveShop(item);
 			}
 		}
-        try {
+		try {
 			shopsConfig.save(Shop.getInstance().getShopsFile());
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -85,5 +86,15 @@ public class ShopManager {
 
 	public Map<String, Map<Integer, ShopItem>> getShopItems() {
 		return shopItems;
+	}
+
+	public int getNewID(String category) {
+		int id = 0;
+		for(ShopItem item : shopItems.get(category).values()) {
+			if(item.getId() > id) {
+				id = item.getId();
+			}
+		}
+		return id + 1;
 	}
 }

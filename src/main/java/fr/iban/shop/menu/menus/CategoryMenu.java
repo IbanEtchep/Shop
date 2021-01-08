@@ -94,7 +94,7 @@ public class CategoryMenu extends PaginatedMenu{
 				if(shopItem.getItem().isSimilar(e.getCurrentItem())) return;
 			}
 			ShopItem item = new ShopItem(
-					sm.getShopItems().get(category).size() + 1,
+					sm.getNewID(category),
 					0, 0, new ItemBuilder(e.getCurrentItem().clone()).setAmount(1).build(), category, 0, 0);
 			sm.saveShop(item);
 			sm.reloadShops();

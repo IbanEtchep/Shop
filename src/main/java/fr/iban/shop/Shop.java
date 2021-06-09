@@ -36,7 +36,7 @@ public final class Shop extends JavaPlugin {
     	instance = this;
         createShopsConfig();
         shopManager = new ShopManager(this);
-        transactionManager = new TransactionManager();
+        transactionManager = new TransactionManager(this);
         fluctuationManager = new FluctuationManager(shopManager);
         PluginManager pm = getServer().getPluginManager();
         
@@ -58,6 +58,7 @@ public final class Shop extends JavaPlugin {
          * Register Commands:
          */
         getCommand("shop").setExecutor(new ShopCMD());
+        
         getCommand("shop").setTabCompleter(new ShopCMD());
     }
 

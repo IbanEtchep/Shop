@@ -13,6 +13,13 @@ import net.milkbowl.vault.economy.EconomyResponse;
 
 public class TransactionManager {
 
+	private Shop plugin;
+
+	public TransactionManager(Shop shop) {
+		this.plugin = shop;
+	}
+
+
 	public void buyItem(Player player, ShopItem shopItem, int amount){
 		if(shopItem.getMaxStock() != 0 && shopItem.getStock() - amount <= 1) {
 			player.sendMessage("§cCet item n'est plus en stock.");
@@ -31,6 +38,8 @@ public class TransactionManager {
 				}
 				shopItem.setStock(shopItem.getStock() - amount);
 				player.sendMessage("§aVous avez acheté " + amount + " " + item.getType().name() + " pour " + prix + "$");
+				String log = player.getName() + " a acheté " + amount + " " + item.getType().toString() + " pour " + prix + "$";
+				plugin.getLogger().info(log);
 				Bukkit.getPluginManager().callEvent(new ShopActionEvent(ShopAction.BUY));
 			}
 		}else {
@@ -40,10 +49,16 @@ public class TransactionManager {
 
 
 	public void sellItem(Player player, ShopItem shopItem, int amount) {
-		if(shopItem.getMaxStock() != 0 && shopItem.getStock() + amount >= shopItem.getMaxStock()) {
-			player.sendMessage("§cLes réserves sont pleines, impossible de vendre davantage de cet item.");
-			return;
+		int remainingStock = shopItem.getMaxStock() - shopItem.getStock();
+		if(shopItem.getMaxStock() != 0 && amount > remainingStock) {
+			if(remainingStock > 0) {
+				amount = remainingStock;
+			}else {
+				player.sendMessage("§cLes réserves sont pleines, impossible de vendre davantage de cet item.");
+				return;
+			}
 		}
+		
 		Economy econ = Shop.getEconomy();
 		double prix = shopItem.calculatePrice(amount, ShopAction.SELL);
 		ItemStack item = new ItemBuilder(shopItem.getItem().clone()).setAmount(amount).build();
@@ -53,7 +68,9 @@ public class TransactionManager {
 			if(r.transactionSuccess()){
 				player.getInventory().removeItem(item);
 				player.updateInventory();
-				player.sendMessage("§aVous avez vendu " + amount + " " + item.getType().name() + " pour " + prix + "$");	
+				player.sendMessage("§aVous avez vendu " + amount + " " + item.getType().name() + " pour " + prix + "$");
+				String log = player.getName() + " a vendu " + amount + " " + item.getType().toString() + " pour " + prix + "$";
+				plugin.getLogger().info(log);
 				shopItem.setStock(shopItem.getStock() + amount);
 				Bukkit.getPluginManager().callEvent(new ShopActionEvent(ShopAction.SELL));
 			}

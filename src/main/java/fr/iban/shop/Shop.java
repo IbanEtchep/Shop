@@ -48,7 +48,7 @@ public final class Shop extends JavaPlugin {
         }
 
         shopManager.loadShops();
-        fluctuationManager.scheduleFluctuation(20L*3600, 0.05D);
+        fluctuationManager.scheduleFluctuation(20L*3600, 0.1D);
         /*
          * Register listeners :
          */

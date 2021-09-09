@@ -147,7 +147,6 @@ public class CategoryMenu extends PaginatedMenu{
 				it = new ItemBuilder(it).addLore("§f§lVente rapide : §b×" + amount + "➪"+ shopItem.calculatePrice(amount, ShopAction.SELL)+ Shop.SYMBOLE + " §7(clic molette)").build();
 			}
 		}
-
 		return it;
 	}
 

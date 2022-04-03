@@ -70,6 +70,12 @@ public class ShopManager {
 		Bukkit.getPluginManager().callEvent(new ShopReloadEvent());
 	}
 
+	public void reloadConfig() {
+		shop.reloadConfig();
+		loadShops();
+		Bukkit.getPluginManager().callEvent(new ShopReloadEvent());
+	}
+
 	public void saveShops() {
 		for(Map<Integer, ShopItem> category : getShopItems().values()) {
 			for(ShopItem item : category.values()) {

@@ -57,9 +57,9 @@ public final class Shop extends JavaPlugin {
         /*
          * Register Commands:
          */
-        getCommand("shop").setExecutor(new ShopCMD());
+        getCommand("shop").setExecutor(new ShopCMD(this));
         
-        getCommand("shop").setTabCompleter(new ShopCMD());
+        getCommand("shop").setTabCompleter(new ShopCMD(this));
     }
 
     @Override

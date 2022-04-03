@@ -15,6 +15,14 @@ import fr.iban.shop.menu.menus.CategoryMenu;
 
 public class ShopCMD implements CommandExecutor, TabCompleter {
 
+	private Shop plugin;
+	private ShopManager sm;
+
+	public ShopCMD(Shop plugin) {
+		this.plugin = plugin;
+		this.sm = plugin.getShopManager();
+	}
+
 	@Override
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 		if(args.length == 0) {
@@ -23,21 +31,18 @@ public class ShopCMD implements CommandExecutor, TabCompleter {
 			switch (args[0]) {
 			case "reload":
 				if(args.length == 1 && sender.hasPermission("shop.admin")) {
-					ShopManager sm = Shop.getInstance().getShopManager();
-					sm.reloadShops();
+					sm.reloadConfig();
 					sender.sendMessage("§aReload des shops effectué.");
 				}
 				break;
 			case "reloadconfig":
 				if(args.length == 1 && sender.hasPermission("shop.admin")) {
-					ShopManager sm = Shop.getInstance().getShopManager();
 					sm.loadShops();
 					sender.sendMessage("§aReload de la configuration effectué.");
 				}
 				break;
 			case "addcategory":
 				if(args.length == 2 && sender.hasPermission("shop.admin")) {
-					ShopManager sm = Shop.getInstance().getShopManager();
 					if(!sm.getShopItems().containsKey(args[1])) {
 						sm.getShopItems().put(args[1], new HashMap<>());
 						sender.sendMessage("§aCatégorie " + args[1] + " ajoutée.");
@@ -74,11 +79,11 @@ public class ShopCMD implements CommandExecutor, TabCompleter {
 	public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
 		List<String> list = new ArrayList<>();
 		if(args.length == 1) {
-			list.addAll(Shop.getInstance().getShopManager().getShopItems().keySet());
+			list.addAll(sm.getShopItems().keySet());
 			return list;
 		}
 		if(args.length == 2 && args[1].equalsIgnoreCase("additem")) {
-			list.addAll(Shop.getInstance().getShopManager().getShopItems().keySet());
+			list.addAll(sm.getShopItems().keySet());
 			return list;
 		}
 		return null;

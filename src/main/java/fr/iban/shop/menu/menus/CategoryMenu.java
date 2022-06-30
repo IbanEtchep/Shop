@@ -10,7 +10,7 @@ import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 import fr.iban.shop.Shop;
-import fr.iban.shop.manager.ShopItem;
+import fr.iban.shop.ShopItem;
 import fr.iban.shop.manager.ShopManager;
 import fr.iban.shop.menu.PaginatedMenu;
 import fr.iban.shop.utils.ItemBuilder;

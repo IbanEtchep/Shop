@@ -3,6 +3,7 @@ package fr.iban.shop.manager;
 import java.util.Map;
 import java.util.Random;
 
+import fr.iban.shop.ShopItem;
 import org.bukkit.Bukkit;
 import org.bukkit.scheduler.BukkitRunnable;
 

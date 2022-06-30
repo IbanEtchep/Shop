@@ -3,7 +3,7 @@ package fr.iban.shop.utils;
 import org.bukkit.Material;
 
 import fr.iban.shop.Shop;
-import fr.iban.shop.manager.ShopItem;
+import fr.iban.shop.ShopItem;
 import fr.iban.shop.manager.ShopManager;
 
 public class ShopItemsTemplate {

@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
 
+import fr.iban.shop.ShopItem;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 

@@ -1,5 +1,6 @@
 package fr.iban.shop.manager;
 
+import fr.iban.shop.ShopItem;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -13,7 +14,7 @@ import net.milkbowl.vault.economy.EconomyResponse;
 
 public class TransactionManager {
 
-	private Shop plugin;
+	private final Shop plugin;
 
 	public TransactionManager(Shop shop) {
 		this.plugin = shop;

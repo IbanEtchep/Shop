@@ -6,7 +6,7 @@ import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 import fr.iban.shop.Shop;
-import fr.iban.shop.manager.ShopItem;
+import fr.iban.shop.ShopItem;
 import fr.iban.shop.menu.Menu;
 import fr.iban.shop.utils.ItemBuilder;
 import fr.iban.shop.utils.ShopAction;

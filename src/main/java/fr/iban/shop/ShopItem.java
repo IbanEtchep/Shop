@@ -1,4 +1,4 @@
-package fr.iban.shop.manager;
+package fr.iban.shop;
 
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;

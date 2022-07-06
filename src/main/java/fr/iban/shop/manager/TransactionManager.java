@@ -26,7 +26,7 @@ public class TransactionManager {
 			player.sendMessage("§cCet item n'est plus en stock.");
 			return;
 		}
-		Economy econ = Shop.getEconomy();
+		Economy econ = plugin.getEconomy();
 		double prix = shopItem.calculatePrice(amount, ShopAction.BUY);
 		if(econ.has(player, prix)) {
 			EconomyResponse r =	econ.withdrawPlayer(player, prix);
@@ -60,7 +60,7 @@ public class TransactionManager {
 			}
 		}
 		
-		Economy econ = Shop.getEconomy();
+		Economy econ = plugin.getEconomy();
 		double prix = shopItem.calculatePrice(amount, ShopAction.SELL);
 		ItemStack item = new ItemBuilder(shopItem.getItem().clone()).setAmount(amount).build();
 

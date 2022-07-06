@@ -3,6 +3,7 @@ package fr.iban.shop;
 import java.io.File;
 import java.io.IOException;
 
+import fr.iban.shop.listeners.ServiceListeners;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -54,6 +55,7 @@ public final class Shop extends JavaPlugin {
          */
         pm.registerEvents(new InventoryListener(), this);
         pm.registerEvents(new ShopListeners(), this);
+        pm.registerEvents(new ServiceListeners(this), this);
         /*
          * Register Commands:
          */
@@ -93,11 +95,11 @@ public final class Shop extends JavaPlugin {
 		return instance;
 	}
 	
-    public static Economy getEconomy() {
+    public Economy getEconomy() {
         return econ;
     }
 	
-    private boolean setupEconomy() {
+    public boolean setupEconomy() {
         if (getServer().getPluginManager().getPlugin("Vault") == null) {
             return false;
         }
@@ -106,7 +108,7 @@ public final class Shop extends JavaPlugin {
             return false;
         }
         econ = rsp.getProvider();
-        return econ != null;
+        return true;
     }
 
 	public TransactionManager getTransactionManager() {

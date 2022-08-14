@@ -7,7 +7,7 @@ import fr.iban.shop.ShopItem;
 import org.bukkit.Bukkit;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import fr.iban.shop.Shop;
+import fr.iban.shop.ShopPlugin;
 import fr.iban.shop.events.ShopFluctuateEvent;
 
 public class FluctuationManager {
@@ -56,7 +56,7 @@ public class FluctuationManager {
 				}
 				fluctuate(max);
 			}
-		}.runTaskTimer(Shop.getInstance(), 0, (long) (period/modifier));
+		}.runTaskTimer(ShopPlugin.getInstance(), 0, (long) (period/modifier));
 	}
 	
 	public double nextDouble(double minimum, double maximum)

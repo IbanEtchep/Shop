@@ -3,7 +3,12 @@ package fr.iban.shop;
 import java.io.File;
 import java.io.IOException;
 
+import fr.iban.lands.LandManager;
+import fr.iban.lands.LandsPlugin;
+import fr.iban.shop.commands.ShopCommands;
+import fr.iban.shop.listeners.InteractListener;
 import fr.iban.shop.listeners.ServiceListeners;
+import org.bukkit.Bukkit;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -11,17 +16,17 @@ import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import fr.iban.shop.commands.ShopCMD;
 import fr.iban.shop.listeners.InventoryListener;
 import fr.iban.shop.listeners.ShopListeners;
 import fr.iban.shop.manager.FluctuationManager;
 import fr.iban.shop.manager.ShopManager;
 import fr.iban.shop.manager.TransactionManager;
 import net.milkbowl.vault.economy.Economy;
+import revxrsal.commands.bukkit.BukkitCommandHandler;
 
-public final class Shop extends JavaPlugin {
+public final class ShopPlugin extends JavaPlugin {
 	
-	private static Shop instance;
+	private static ShopPlugin instance;
     
     private File shopsFile;
     private FileConfiguration shopsConfig;
@@ -29,7 +34,6 @@ public final class Shop extends JavaPlugin {
     private TransactionManager transactionManager;
     private FluctuationManager fluctuationManager;
     private static Economy econ = null;
-    
     public static final String SYMBOLE = " §e⛃§r";
 
     @Override
@@ -56,17 +60,21 @@ public final class Shop extends JavaPlugin {
         pm.registerEvents(new InventoryListener(), this);
         pm.registerEvents(new ShopListeners(), this);
         pm.registerEvents(new ServiceListeners(this), this);
+        pm.registerEvents(new InteractListener(this), this);
         /*
          * Register Commands:
          */
-        getCommand("shop").setExecutor(new ShopCMD(this));
-        
-        getCommand("shop").setTabCompleter(new ShopCMD(this));
+        registerCommands();
     }
 
     @Override
     public void onDisable() {
     	shopManager.saveShops();
+    }
+
+    private void registerCommands() {
+        BukkitCommandHandler commandHandler = BukkitCommandHandler.create(this);
+        commandHandler.register(new ShopCommands(this));
     }
 
     public FileConfiguration getShopsConfig() {
@@ -91,7 +99,7 @@ public final class Shop extends JavaPlugin {
 		return shopManager;
 	}
 
-	public static Shop getInstance() {
+	public static ShopPlugin getInstance() {
 		return instance;
 	}
 	
@@ -115,7 +123,11 @@ public final class Shop extends JavaPlugin {
 		return transactionManager;
 	}
 
-	public File getShopsFile() {
+    public FluctuationManager getFluctuationManager() {
+        return fluctuationManager;
+    }
+
+    public File getShopsFile() {
 		return shopsFile;
 	}
 

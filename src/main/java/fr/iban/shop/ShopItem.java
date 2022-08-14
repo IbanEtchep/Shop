@@ -8,11 +8,11 @@ import net.md_5.bungee.api.ChatColor;
 
 public class ShopItem {
 
-	private int id;
+	private final int id;
 	private double buy;
 	private double sell;
 	private ItemStack item;
-	private String category;
+	private final String category;
 	private int maxStock = 0;
 	private int stock = 0;
 	private boolean isCommand;

@@ -1,8 +1,6 @@
 package fr.iban.shop.listeners;
 
-import fr.iban.shop.Shop;
-import net.milkbowl.vault.economy.Economy;
-import org.bukkit.Bukkit;
+import fr.iban.shop.ShopPlugin;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.server.ServiceRegisterEvent;
@@ -10,9 +8,9 @@ import org.bukkit.event.server.ServiceUnregisterEvent;
 
 public class ServiceListeners implements Listener {
 
-    private Shop plugin;
+    private ShopPlugin plugin;
 
-    public ServiceListeners(Shop plugin) {
+    public ServiceListeners(ShopPlugin plugin) {
         this.plugin = plugin;
     }
 

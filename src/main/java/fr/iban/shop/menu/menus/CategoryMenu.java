@@ -1,24 +1,25 @@
 package fr.iban.shop.menu.menus;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
+import fr.iban.shop.ShopItem;
+import fr.iban.shop.ShopPlugin;
+import fr.iban.shop.manager.ShopManager;
+import fr.iban.shop.menu.PaginatedMenu;
+import fr.iban.shop.utils.ItemBuilder;
+import fr.iban.shop.utils.ShopAction;
 import org.apache.commons.lang.StringUtils;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
-import fr.iban.shop.Shop;
-import fr.iban.shop.ShopItem;
-import fr.iban.shop.manager.ShopManager;
-import fr.iban.shop.menu.PaginatedMenu;
-import fr.iban.shop.utils.ItemBuilder;
-import fr.iban.shop.utils.ShopAction;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class CategoryMenu extends PaginatedMenu{
 
-	private String category;
+	private final String category;
 
 	public CategoryMenu(Player player, String category) {
 		super(player);
@@ -38,8 +39,8 @@ public class CategoryMenu extends PaginatedMenu{
 	@Override
 	public void handleMenu(InventoryClickEvent e) {
 		Player p = (Player) e.getWhoClicked();
-		ShopManager sm = Shop.getInstance().getShopManager();
-		List<ShopItem> shopItems = sm.getShopItems().get(category).values().stream().collect(Collectors.toList());
+		ShopManager sm = ShopPlugin.getInstance().getShopManager();
+		List<ShopItem> shopItems = new ArrayList<>(sm.getShopItems().get(category).values());
 
 		if(e.getClickedInventory() == e.getView().getTopInventory()) {
 			if(e.getCurrentItem().getType().toString().toUpperCase().endsWith("GLASS_PANE")) {
@@ -78,9 +79,9 @@ public class CategoryMenu extends PaginatedMenu{
 				}else if(e.getClick() == ClickType.MIDDLE) {
 					//Tout vendre
 					if(clickedItem.getSell() > 0) {
-						int amount = Shop.getInstance().getTransactionManager().getSellAllAmount(clickedItem, player);
+						int amount = ShopPlugin.getInstance().getTransactionManager().getSellAllAmount(clickedItem, player);
 						if(amount > 0) {
-							Shop.getInstance().getTransactionManager().sellItem(p, clickedItem, amount);
+							ShopPlugin.getInstance().getTransactionManager().sellItem(p, clickedItem, amount);
 							super.open();
 						}
 					}
@@ -103,7 +104,7 @@ public class CategoryMenu extends PaginatedMenu{
 
 	@Override
 	public void open() {
-		ShopManager sm = Shop.getInstance().getShopManager();
+		ShopManager sm = ShopPlugin.getInstance().getShopManager();
 
 		if(!sm.getShopItems().containsKey(category)) {
 			player.sendMessage("§cLa catégorie " + category + " n'éxiste pas.");
@@ -114,18 +115,17 @@ public class CategoryMenu extends PaginatedMenu{
 
 	@Override
 	public void setMenuItems() {
-		ShopManager sm = Shop.getInstance().getShopManager();
-
+		ShopManager sm = ShopPlugin.getInstance().getShopManager();
 		addMenuBorder();
+		List<ShopItem> shopItems = new ArrayList<>(sm.getShopItems().get(category).values());
 
-		List<ShopItem> shopItems = sm.getShopItems().get(category).values().stream().collect(Collectors.toList());
-
-		if(shopItems != null && !shopItems.isEmpty()) {
+		if(!shopItems.isEmpty()) {
 			for(int i = 0; i < getMaxItemsPerPage(); i++) {
 				index = getMaxItemsPerPage() * page + i;
 				if(index >= shopItems.size()) break;
 				if (shopItems.get(index) != null){
 					ShopItem shopItem = shopItems.get(index);
+					if(shopItem.getItem() == null) return;
 					inventory.addItem(getShopDisplayItem(shopItem));
 				}
 			}
@@ -138,13 +138,13 @@ public class CategoryMenu extends PaginatedMenu{
 				.addLore(shopItem.getMaxStock() == 0 ? "§f§lStock: §7illimité" : "§f§lStock: §7" + shopItem.getStock()+"§f/§8"+shopItem.getMaxStock())
 				.build();
 		if(shopItem.getBuy() != 0) {
-			it = new ItemBuilder(it).addLore("§f§lAchat: §b" + shopItem.calculatePrice(1, ShopAction.BUY) + Shop.SYMBOLE + shopItem.getPriceVariationString(ShopAction.BUY) + "§7 (clic gauche)").build();
+			it = new ItemBuilder(it).addLore("§f§lAchat: §b" + shopItem.calculatePrice(1, ShopAction.BUY) + ShopPlugin.SYMBOLE + shopItem.getPriceVariationString(ShopAction.BUY) + "§7 (clic gauche)").build();
 		}
 		if(shopItem.getSell() != 0) {
-			int amount = Shop.getInstance().getTransactionManager().getSellAllAmount(shopItem, player);
-			it = new ItemBuilder(it).addLore("§f§lVente: §b" + shopItem.calculatePrice(1, ShopAction.SELL) + Shop.SYMBOLE + shopItem.getPriceVariationString(ShopAction.SELL) + "§7 (clic droit)").build();
+			int amount = ShopPlugin.getInstance().getTransactionManager().getSellAllAmount(shopItem, player);
+			it = new ItemBuilder(it).addLore("§f§lVente: §b" + shopItem.calculatePrice(1, ShopAction.SELL) + ShopPlugin.SYMBOLE + shopItem.getPriceVariationString(ShopAction.SELL) + "§7 (clic droit)").build();
 			if(amount != 0) {
-				it = new ItemBuilder(it).addLore("§f§lVente rapide : §b×" + amount + "➪"+ shopItem.calculatePrice(amount, ShopAction.SELL)+ Shop.SYMBOLE + " §7(clic molette)").build();
+				it = new ItemBuilder(it).addLore("§f§lVente rapide : §b×" + amount + "➪"+ shopItem.calculatePrice(amount, ShopAction.SELL)+ ShopPlugin.SYMBOLE + " §7(clic molette)").build();
 			}
 		}
 		return it;

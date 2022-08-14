@@ -24,8 +24,8 @@
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>3.8.1</version>
 				<configuration>
-					<source>${java.version}</source>
-					<target>${java.version}</target>
+					<source>16</source>
+					<target>16</target>
 				</configuration>
 			</plugin>
 			<plugin>
@@ -81,5 +81,17 @@
 			<version>1.7</version>
 			<scope>provided</scope>
 		</dependency>
-	</dependencies>
+		<dependency>
+			<groupId>com.github.IbanEtchep.ServerCore</groupId>
+			<artifactId>CorePaper</artifactId>
+			<version>v1.0.0</version>
+			<scope>provided</scope>
+		</dependency>
+        <dependency>
+            <groupId>fr.iban</groupId>
+            <artifactId>Lands</artifactId>
+            <version>1.0</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
 </project>

@@ -1,11 +1,9 @@
 name: Shop
 version: ${project.version}
-main: fr.iban.shop.Shop
+main: fr.iban.shop.ShopPlugin
 api-version: 1.16
 prefix: Shop
-depend: [ Vault ]
+depend: [ Vault , Core ]
+solfdepend: [ Lands ]
 authors: [ Iban ]
 description: Plugin de shop
-
-commands:
-  shop:

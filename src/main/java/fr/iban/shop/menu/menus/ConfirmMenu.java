@@ -5,7 +5,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 
-import fr.iban.shop.Shop;
+import fr.iban.shop.ShopPlugin;
 import fr.iban.shop.ShopItem;
 import fr.iban.shop.manager.TransactionManager;
 import fr.iban.shop.menu.Menu;
@@ -62,7 +62,7 @@ public class ConfirmMenu extends Menu {
 			new CategoryMenu(player, shopItem.getCategory()).open();
 			return;
 		case "§aConfirmer":
-			TransactionManager tm = Shop.getInstance().getTransactionManager();
+			TransactionManager tm = ShopPlugin.getInstance().getTransactionManager();
 			if(action == ShopAction.BUY) {
 				tm.buyItem(player, shopItem, amount);
 			}else {
@@ -71,7 +71,7 @@ public class ConfirmMenu extends Menu {
 			break;
 		default:
 			if(current.getItemMeta().getDisplayName().startsWith("§aTout vendre pour")) {
-				Shop.getInstance().getTransactionManager().sellItem(player, shopItem, Shop.getInstance().getTransactionManager().getSellAllAmount(shopItem, player));
+				ShopPlugin.getInstance().getTransactionManager().sellItem(player, shopItem, ShopPlugin.getInstance().getTransactionManager().getSellAllAmount(shopItem, player));
 			}
 			return;
 		}
@@ -84,7 +84,7 @@ public class ConfirmMenu extends Menu {
 
 		double prix = shopItem.calculatePrice(amount, action);
 
-		inventory.setItem(22, new ItemBuilder(shopItem.getItem().clone()).setAmount(amount).addLore("§d§lPrix : §5§l" + prix + Shop.SYMBOLE).build());
+		inventory.setItem(22, new ItemBuilder(shopItem.getItem().clone()).setAmount(amount).addLore("§d§lPrix : §5§l" + prix + ShopPlugin.SYMBOLE).build());
 
 		if(amount > 1)
 			inventory.setItem(18, new ItemBuilder(Material.RED_STAINED_GLASS_PANE).setName("§c§lMettre à 1").build());
@@ -102,8 +102,8 @@ public class ConfirmMenu extends Menu {
 
 		inventory.setItem(39, new ItemBuilder(Material.RED_STAINED_GLASS).setName("§cRetour").build());
 		if(action == ShopAction.SELL) {
-			int sellAllAmount = Shop.getInstance().getTransactionManager().getSellAllAmount(shopItem, player);
-			inventory.setItem(40, new ItemBuilder(Material.LIME_STAINED_GLASS).setName("§aTout vendre pour : §f" + shopItem.calculatePrice(sellAllAmount, ShopAction.SELL)+ Shop.SYMBOLE).build());
+			int sellAllAmount = ShopPlugin.getInstance().getTransactionManager().getSellAllAmount(shopItem, player);
+			inventory.setItem(40, new ItemBuilder(Material.LIME_STAINED_GLASS).setName("§aTout vendre pour : §f" + shopItem.calculatePrice(sellAllAmount, ShopAction.SELL)+ ShopPlugin.SYMBOLE).build());
 		}
 		inventory.setItem(41, new ItemBuilder(Material.GREEN_STAINED_GLASS).setName("§aConfirmer").build());
 	}

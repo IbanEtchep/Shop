@@ -5,7 +5,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
-import fr.iban.shop.Shop;
+import fr.iban.shop.ShopPlugin;
 import fr.iban.shop.ShopItem;
 import fr.iban.shop.menu.Menu;
 import fr.iban.shop.utils.ItemBuilder;
@@ -66,8 +66,8 @@ public class ShopItemEditMenu extends Menu{
 			select(Selection.MAXSTOCK);
 			break;
 		case "§4§lSupprimer":
-			Shop.getInstance().getShopManager().getShopItems().get(shopItem.getCategory()).remove(shopItem.getId());
-			Shop.getInstance().getShopsConfig().set("shops."+shopItem.getCategory()+"."+shopItem.getId(), null);
+			ShopPlugin.getInstance().getShopManager().getShopItems().get(shopItem.getCategory()).remove(shopItem.getId());
+			ShopPlugin.getInstance().getShopsConfig().set("shops."+shopItem.getCategory()+"."+shopItem.getId(), null);
 			player.sendMessage("§cL'article a bien été supprimé.");
 			player.closeInventory();
 			return;
@@ -129,8 +129,8 @@ public class ShopItemEditMenu extends Menu{
 	private ItemStack getShopDisplayItem(ShopItem shopItem) {
 		return new ItemBuilder(shopItem.getItem().clone())
 				.addLore("§f§lStock: §7" + shopItem.getStock()+"§f/§8"+shopItem.getMaxStock())
-				.addLore("§f§lAchat: §b" + shopItem.calculatePrice(1, ShopAction.BUY) + Shop.SYMBOLE + shopItem.getPriceVariationString(ShopAction.BUY))
-				.addLore("§f§lVente: §b" + shopItem.calculatePrice(1, ShopAction.SELL) + Shop.SYMBOLE + shopItem.getPriceVariationString(ShopAction.SELL))
+				.addLore("§f§lAchat: §b" + shopItem.calculatePrice(1, ShopAction.BUY) + ShopPlugin.SYMBOLE + shopItem.getPriceVariationString(ShopAction.BUY))
+				.addLore("§f§lVente: §b" + shopItem.calculatePrice(1, ShopAction.SELL) + ShopPlugin.SYMBOLE + shopItem.getPriceVariationString(ShopAction.SELL))
 				.build();
 	}
 

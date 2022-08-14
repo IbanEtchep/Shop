@@ -2,7 +2,7 @@ package fr.iban.shop.utils;
 
 import org.bukkit.Material;
 
-import fr.iban.shop.Shop;
+import fr.iban.shop.ShopPlugin;
 import fr.iban.shop.ShopItem;
 import fr.iban.shop.manager.ShopManager;
 
@@ -31,7 +31,7 @@ public class ShopItemsTemplate {
 	}
 	
 	private static void addItem(int id, double buy, Material material, String category, int maxstock) {
-		ShopManager sm = Shop.getInstance().getShopManager();
+		ShopManager sm = ShopPlugin.getInstance().getShopManager();
 		sm.saveShop(new ShopItem(id, buy, material, category, maxstock));
 	}
 

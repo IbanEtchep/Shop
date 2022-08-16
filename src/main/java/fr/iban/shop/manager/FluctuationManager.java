@@ -11,13 +11,16 @@ import fr.iban.shop.ShopPlugin;
 import fr.iban.shop.events.ShopFluctuateEvent;
 
 public class FluctuationManager {
-	
-	private ShopManager shopmanager;
-	private Random random = new Random();
 
-	
-	public FluctuationManager(ShopManager shopManager) {
-		this.shopmanager = shopManager;
+	private ShopPlugin plugin;
+	private final ShopManager shopmanager;
+	private final Random random = new Random();
+	private double modifier = 1;
+
+
+	public FluctuationManager(ShopPlugin plugin) {
+		this.plugin = plugin;
+		this.shopmanager = plugin.getShopManager();
 	}
 
 	public void fluctuate(double maxModifier) {
@@ -42,9 +45,7 @@ public class FluctuationManager {
 		}
 		Bukkit.getPluginManager().callEvent(new ShopFluctuateEvent());
 	}
-	
-	private double modifier = 1;
-	
+
 	public void scheduleFluctuation(long period, double max) {
 		new BukkitRunnable() {
 			@Override
@@ -56,7 +57,7 @@ public class FluctuationManager {
 				}
 				fluctuate(max);
 			}
-		}.runTaskTimer(ShopPlugin.getInstance(), 0, (long) (period/modifier));
+		}.runTaskTimer(plugin, 0L, (long) (period/modifier));
 	}
 	
 	public double nextDouble(double minimum, double maximum)

@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.logging.Level;
 
 import fr.iban.shop.ShopItem;
@@ -26,8 +27,6 @@ public class ShopManager {
 
 	private final FileConfiguration shopsConfig;
 	public final NamespacedKey sellWandKey;
-
-
 	//         CATEGORY     ID       ITEM        
 	private final Map<String, Map<Integer, ShopItem>> shopItems = new HashMap<>();
 
@@ -42,11 +41,11 @@ public class ShopManager {
 	 */
 	public void loadShops() {
 		plugin.getLogger().log(Level.INFO, "Chargement des shops...");
-		for(String category : shopsConfig.getConfigurationSection("shops").getKeys(false)) {
+		for(String category : Objects.requireNonNull(shopsConfig.getConfigurationSection("shops")).getKeys(false)) {
 			plugin.getLogger().log(Level.INFO, "Chargement de la catégorie : " + category);
 			shopItems.put(category, new HashMap<>());
 			String catPath = "shops."+category;
-			for(String id :shopsConfig.getConfigurationSection(catPath).getKeys(false)) {
+			for(String id : Objects.requireNonNull(shopsConfig.getConfigurationSection(catPath)).getKeys(false)) {
 				String path = catPath+"."+id+".";
 				shopItems.get(category).put(Integer.parseInt(id), new ShopItem(
 						Integer.parseInt(id),

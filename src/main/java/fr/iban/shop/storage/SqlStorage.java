@@ -3,12 +3,14 @@ package fr.iban.shop.storage;
 import fr.iban.common.data.sql.DbAccess;
 import fr.iban.shop.ShopItem;
 import fr.iban.shop.utils.ItemStackSerializer;
+import fr.iban.shop.utils.ShopAction;
 import org.bukkit.inventory.ItemStack;
 
 import javax.sql.DataSource;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class SqlStorage {
 
@@ -20,10 +22,14 @@ public class SqlStorage {
 
     private void init() {
         String[] createStatements = new String[]{
+                "CREATE TABLE IF NOT EXISTS shop_categories(" +
+                        "id INTEGER PRIMARY KEY AUTO_INCREMENT ," +
+                        "name VARCHAR(255)" +
+                        "); ",
                 "CREATE TABLE IF NOT EXISTS shop_items(" +
                         "id INTEGER PRIMARY KEY AUTO_INCREMENT ," +
                         "name VARCHAR(255) ," +
-                        "itemstack VARCHAR(255) UNIQUE ," +
+                        "itemstack TEXT UNIQUE ," +
                         "buyPrice FLOAT," +
                         "sellPrice FLOAT," +
                         "stock INTEGER," +
@@ -31,14 +37,11 @@ public class SqlStorage {
                         "category_id INTEGER," +
                         "FOREIGN KEY (category_id) REFERENCES shop_categories(id) ON DELETE CASCADE" +
                         "); ",
-                "CREATE TABLE IF NOT EXISTS shop_categories(" +
-                        "id INTEGER PRIMARY KEY AUTO_INCREMENT ," +
-                        "name VARCHAR(255)" +
-                        "); ",
                 "CREATE TABLE IF NOT EXISTS shop_transactions(" +
-                        "item_id INTEGER PRIMARY KEY AUTO_INCREMENT ," +
+                        "item_id INTEGER ," +
                         "uuid VARCHAR(36) ," +
                         "amount INTEGER," +
+                        "price FLOAT," +
                         "type INTEGER," +
                         "createdAt DATETIME DEFAULT NOW()," +
                         "FOREIGN KEY (item_id) REFERENCES shop_items(id) ON DELETE CASCADE" +
@@ -84,6 +87,7 @@ public class SqlStorage {
                 "WHERE I.id=?;";
         try (Connection connection = ds.getConnection()) {
             try (PreparedStatement ps = connection.prepareStatement(sql)) {
+                ps.setInt(1, itemID);
                 try (ResultSet rs = ps.executeQuery()) {
                     if (rs.next()) {
                         return getItemFromResultSet(rs);
@@ -108,25 +112,59 @@ public class SqlStorage {
     }
 
 
-    public void saveItem(ShopItem item) {
-        String sql = "INSERT INTO shop_items(id, name, itemStack, buyPrice, sellPrice, stock, maxStock, category_id) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?, (SELECT id FROM shop_categories WHERE name=?)) " +
-                "ON DUPLICATE KEY UPDATE name=VALUES(name), itemStack=VALUES(itemStack), buyPrice=VALUES(buyPrice)," +
-                "sellPrice=VALUES(sellPrice), stock=VALUES(stock), maxStock=VALUES(maxStock);";
+    public void addItem(ShopItem item) {
+        String sql = "INSERT INTO shop_items(name, itemStack, buyPrice, sellPrice, stock, maxStock, category_id) " +
+                "VALUES (?, ?, ?, ?, ?, ?, (SELECT id FROM shop_categories WHERE name=?));";
+
         try (Connection connection = ds.getConnection()) {
             try (PreparedStatement ps = connection.prepareStatement(sql)) {
-                ps.setInt(1, item.getId());
-                ItemStack itemStack = item.getItem();
+                ItemStack itemStack = item.getItemStack();
                 if (itemStack.getItemMeta() != null && itemStack.getItemMeta().hasDisplayName()) {
-                    ps.setString(2, itemStack.getItemMeta().getDisplayName());
+                    ps.setString(1, itemStack.getItemMeta().getDisplayName());
                 } else {
-                    ps.setString(2, itemStack.getType().toString());
+                    ps.setString(1, itemStack.getType().toString());
                 }
-                ps.setString(3, ItemStackSerializer.toBase64(itemStack));
-                ps.setDouble(4, item.getBuy());
-                ps.setDouble(5, item.getSell());
-                ps.setInt(6, item.getStock());
-                ps.setInt(7, item.getMaxStock());
+                ps.setString(2, ItemStackSerializer.toBase64(itemStack));
+                ps.setDouble(3, item.getBuyPrice());
+                ps.setDouble(4, item.getSellPrice());
+                ps.setInt(5, item.getStock());
+                ps.setInt(6, item.getMaxStock());
+                ps.setString(7, item.getCategory());
+                ps.executeUpdate();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void updateItem(ShopItem item) {
+        String sql = "UPDATE shop_items SET name=?, itemStack=?, buyPrice=?, sellPrice=?, stock=?, maxStock=? WHERE id=?;";
+        try (Connection connection = ds.getConnection()) {
+            try (PreparedStatement ps = connection.prepareStatement(sql)) {
+                ItemStack itemStack = item.getItemStack();
+                if (itemStack.getItemMeta() != null && itemStack.getItemMeta().hasDisplayName()) {
+                    ps.setString(1, itemStack.getItemMeta().getDisplayName());
+                } else {
+                    ps.setString(1, itemStack.getType().toString());
+                }
+                ps.setString(2, ItemStackSerializer.toBase64(itemStack));
+                ps.setDouble(3, item.getBuyPrice());
+                ps.setDouble(4, item.getSellPrice());
+                ps.setInt(5, item.getStock());
+                ps.setInt(6, item.getMaxStock());
+                ps.setInt(7, item.getId());
+                ps.executeUpdate();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void deleteItem(int itemID) {
+        String sql = "DELETE FROM shop_items WHERE id=?";
+        try (Connection connection = ds.getConnection()) {
+            try (PreparedStatement ps = connection.prepareStatement(sql)) {
+                ps.setInt(1, itemID);
                 ps.executeUpdate();
             }
         } catch (SQLException e) {
@@ -164,17 +202,23 @@ public class SqlStorage {
         }
     }
 
-    public void setMaxStock(ShopItem item) {
-        String sql = "UPDATE shop_items SET maxStock=? WHERE id=?";
+    public List<String> getCategories() {
+        String sql = "SELECT name FROM shop_categories;";
+        List<String> categories = new ArrayList<>();
+
         try (Connection connection = ds.getConnection()) {
             try (PreparedStatement ps = connection.prepareStatement(sql)) {
-                ps.setInt(1, item.getMaxStock());
-                ps.setInt(2, item.getId());
-                ps.executeUpdate();
+                try (ResultSet rs = ps.executeQuery()) {
+                    while (rs.next()) {
+                        categories.add(rs.getString("name"));
+                    }
+                }
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
+
+        return categories;
     }
 
     public void addCategory(String name) {
@@ -188,4 +232,33 @@ public class SqlStorage {
             e.printStackTrace();
         }
     }
+
+    public void deleteCategory(String name) {
+        String sql = "DELETE FROM shop_categories WHERE name=?";
+        try (Connection connection = ds.getConnection()) {
+            try (PreparedStatement ps = connection.prepareStatement(sql)) {
+                ps.setString(1, name);
+                ps.executeUpdate();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void addTransactionLog(ShopItem item, UUID uuid, int amount, double price, ShopAction action) {
+        String sql = "INSERT INTO shop_transactions(item_id, uuid, amount, price, type) VALUES (?, ?, ?, ?, ?)";
+        try (Connection connection = ds.getConnection()) {
+            try (PreparedStatement ps = connection.prepareStatement(sql)) {
+                ps.setInt(1, item.getId());
+                ps.setString(2, uuid.toString());
+                ps.setInt(3, amount);
+                ps.setDouble(4, price);
+                ps.setInt(5, action == ShopAction.BUY ? 0 : 1);
+                ps.executeUpdate();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
 }

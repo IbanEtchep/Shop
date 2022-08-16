@@ -9,51 +9,50 @@ import net.md_5.bungee.api.ChatColor;
 public class ShopItem {
 
 	private final int id;
-	private double buy;
-	private double sell;
-	private ItemStack item;
+	private double buyPrice;
+	private double sellPrice;
+	private ItemStack itemStack;
 	private final String category;
 	private int maxStock = 0;
 	private int stock = 0;
-	private boolean isCommand;
 
-	public ShopItem(int id, double buy, Material material, String category, int maxstock) {
-		this(id, buy, buy/10, new ItemStack(material), category, maxstock, maxstock/2);
+	public ShopItem(int id, double buyPrice, Material material, String category, int maxstock) {
+		this(id, buyPrice, buyPrice/10, new ItemStack(material), category, maxstock, maxstock/2);
 	}
 	
-	public ShopItem(int id, double buy, double sell, ItemStack item, String category) {
+	public ShopItem(int id, double buyPrice, double sellPrice, ItemStack item, String category) {
 		this.id = id;
-		this.setBuy(buy);
-		this.setSell(sell);
-		this.item = item;
+		this.setBuyPrice(buyPrice);
+		this.setSellPrice(sellPrice);
+		this.itemStack = item;
 		this.category = category;
 	}
 
-	public ShopItem(int id, double buy, double sell, ItemStack item, String category, int maxStock) {
+	public ShopItem(int id, double buyPrice, double sellPrice, ItemStack item, String category, int maxStock) {
 		this.id = id;
-		this.setBuy(buy);
-		this.setSell(sell);
-		this.item = item;
+		this.setBuyPrice(buyPrice);
+		this.setSellPrice(sellPrice);
+		this.itemStack = item;
 		this.category = category;
 		this.maxStock = maxStock;
 	}
 
-	public ShopItem(int id, double buy, double sell, ItemStack item, String category, int maxStock, int stock) {
+	public ShopItem(int id, double buyPrice, double sellPrice, ItemStack item, String category, int maxStock, int stock) {
 		super();
 		this.id = id;
-		this.buy = buy;
-		this.sell = sell;
-		this.item = item;
+		this.buyPrice = buyPrice;
+		this.sellPrice = sellPrice;
+		this.itemStack = item;
 		this.category = category;
 		this.maxStock = maxStock;
 		this.setStock(stock);
 	}
 
-	public ItemStack getItem() {
-		return item;
+	public ItemStack getItemStack() {
+		return itemStack;
 	}
-	public void setItem(ItemStack item) {
-		this.item = item;
+	public void setItemStack(ItemStack itemStack) {
+		this.itemStack = itemStack;
 	}
 
 	public int getId() {
@@ -72,20 +71,20 @@ public class ShopItem {
 		this.maxStock = maxStock;
 	}
 
-	public double getSell() {
-		return sell;
+	public double getSellPrice() {
+		return sellPrice;
 	}
 
-	public void setSell(double sell) {
-		this.sell = sell;
+	public void setSellPrice(double sellPrice) {
+		this.sellPrice = sellPrice;
 	}
 
-	public double getBuy() {
-		return buy;
+	public double getBuyPrice() {
+		return buyPrice;
 	}
 
-	public void setBuy(double buy) {
-		this.buy = buy;
+	public void setBuyPrice(double buyPrice) {
+		this.buyPrice = buyPrice;
 	}
 
 	public int getStock() {
@@ -126,12 +125,12 @@ public class ShopItem {
 		int vstock = stock;
 		if(action == ShopAction.BUY) {
 			for (int i = 0; i < amount; i++) {
-				finalAmount += buy * getModifier(vstock);
+				finalAmount += buyPrice * getModifier(vstock);
 				vstock--;
 			}
 		}else if(action == ShopAction.SELL) {
 			for (int i = 0; i < amount; i++) {
-				finalAmount += sell * getModifier(vstock);
+				finalAmount += sellPrice * getModifier(vstock);
 				vstock++;
 			}
 		}

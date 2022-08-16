@@ -1,5 +1,6 @@
 package fr.iban.shop.menu.menus;
 
+import fr.iban.shop.manager.ShopManager;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
@@ -13,7 +14,8 @@ import fr.iban.shop.utils.ShopAction;
 
 public class ShopItemEditMenu extends Menu{
 
-	private ShopItem shopItem;
+	private final ShopItem shopItem;
+	private final ShopManager shopManager = ShopPlugin.getInstance().getShopManager();
 
 	private enum Selection {
 		BUY,
@@ -43,43 +45,37 @@ public class ShopItemEditMenu extends Menu{
 
 	@Override
 	public void handleMenu(InventoryClickEvent e) {
+		if(e.getCurrentItem() == null) return;
 		switch (e.getCurrentItem().getItemMeta().getDisplayName()) {
-		case "§f§lPrix d'achat":
-			select(Selection.BUY);
-			if(e.getClick() == ClickType.SHIFT_LEFT) {
-				value = shopItem.getSell()*10;
-				saveSelection();
+			case "§f§lPrix d'achat" -> {
+				select(Selection.BUY);
+				if (e.getClick() == ClickType.SHIFT_LEFT) {
+					value = shopItem.getSellPrice() * 10;
+					saveSelection();
+				}
 			}
-			break;
-		case "§f§lPrix de vente":
-			select(Selection.SELL);
-			if(e.getClick() == ClickType.SHIFT_LEFT) {
-				value = shopItem.getBuy()/10;
-				saveSelection();
+			case "§f§lPrix de vente" -> {
+				select(Selection.SELL);
+				if (e.getClick() == ClickType.SHIFT_LEFT) {
+					value = shopItem.getBuyPrice() / 10;
+					saveSelection();
+				}
+				select(Selection.SELL);
 			}
-			select(Selection.SELL);
-			break;
-		case "§f§lStock":
-			select(Selection.STOCK);
-			break;
-		case "§f§lMaxStock":
-			select(Selection.MAXSTOCK);
-			break;
-		case "§4§lSupprimer":
-			ShopPlugin.getInstance().getShopManager().getShopItems().get(shopItem.getCategory()).remove(shopItem.getId());
-			ShopPlugin.getInstance().getShopsConfig().set("shops."+shopItem.getCategory()+"."+shopItem.getId(), null);
-			player.sendMessage("§cL'article a bien été supprimé.");
-			player.closeInventory();
-			return;
-		case "§cRetour":
-			new CategoryMenu(player, shopItem.getCategory()).open();
-			return;
-		case "§aConfirmer":
-			saveSelection();
-			break;
-		default:
-			modifValue(e.getCurrentItem().getItemMeta().getDisplayName());
-			break;
+			case "§f§lStock" -> select(Selection.STOCK);
+			case "§f§lMaxStock" -> select(Selection.MAXSTOCK);
+			case "§4§lSupprimer" -> {
+				ShopPlugin.getInstance().getShopManager().deleteShopItem(shopItem);
+				player.sendMessage("§cL'article a bien été supprimé.");
+				player.closeInventory();
+				return;
+			}
+			case "§cRetour" -> {
+				new CategoryMenu(player, shopItem.getCategory()).open();
+				return;
+			}
+			case "§aConfirmer" -> saveSelection();
+			default -> modifValue(e.getCurrentItem().getItemMeta().getDisplayName());
 		}
 		open();
 	}
@@ -127,7 +123,7 @@ public class ShopItemEditMenu extends Menu{
 	}
 
 	private ItemStack getShopDisplayItem(ShopItem shopItem) {
-		return new ItemBuilder(shopItem.getItem().clone())
+		return new ItemBuilder(shopItem.getItemStack().clone())
 				.addLore("§f§lStock: §7" + shopItem.getStock()+"§f/§8"+shopItem.getMaxStock())
 				.addLore("§f§lAchat: §b" + shopItem.calculatePrice(1, ShopAction.BUY) + ShopPlugin.SYMBOLE + shopItem.getPriceVariationString(ShopAction.BUY))
 				.addLore("§f§lVente: §b" + shopItem.calculatePrice(1, ShopAction.SELL) + ShopPlugin.SYMBOLE + shopItem.getPriceVariationString(ShopAction.SELL))
@@ -139,10 +135,10 @@ public class ShopItemEditMenu extends Menu{
 		selection = select;
 		switch (selection) {
 		case BUY:
-			value = shopItem.getBuy();
+			value = shopItem.getBuyPrice();
 			break;
 		case SELL:
-			value = shopItem.getSell();
+			value = shopItem.getSellPrice();
 			break;
 		case STOCK:
 			value = shopItem.getStock();
@@ -159,25 +155,26 @@ public class ShopItemEditMenu extends Menu{
 	public void saveSelection() {
 		if(selection != null) {
 			switch (selection) {
-			case BUY:
-				shopItem.setBuy(value);
-				player.sendMessage("§aPrix d'achat mis à : §2" + value);
-				break;
-			case SELL:
-				shopItem.setSell(value);
-				player.sendMessage("§aPrix de vente mis à : §2" + value);
-				break;
-			case STOCK:
-				shopItem.setStock((int)value);
-				player.sendMessage("§aStock mis à : §2" + (int)value);
-				break;
-			case MAXSTOCK:
-				shopItem.setMaxStock((int)value);
-				player.sendMessage("§aStock maximum mis à : §2" + (int)value);
-				break;
-			default:
-				break;
+				case BUY -> {
+					shopItem.setBuyPrice(value);
+					player.sendMessage("§aPrix d'achat mis à : §2" + value);
+				}
+				case SELL -> {
+					shopItem.setSellPrice(value);
+					player.sendMessage("§aPrix de vente mis à : §2" + value);
+				}
+				case STOCK -> {
+					shopItem.setStock((int) value);
+					player.sendMessage("§aStock mis à : §2" + (int) value);
+				}
+				case MAXSTOCK -> {
+					shopItem.setMaxStock((int) value);
+					player.sendMessage("§aStock maximum mis à : §2" + (int) value);
+				}
+				default -> {
+				}
 			}
+			shopManager.saveShopItem(shopItem);
 		}
 	}
 
@@ -196,9 +193,7 @@ public class ShopItemEditMenu extends Menu{
 					value *= val;
 				}
 				if(value < 0) value = 0;
-			} catch (NumberFormatException e) {
-				//Ignore
-			}
+			} catch (NumberFormatException ignored) {}
 		}
 	}
 

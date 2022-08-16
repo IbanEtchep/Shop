@@ -52,7 +52,6 @@ public final class ShopPlugin extends JavaPlugin {
             return;
         }
 
-        shopManager.loadShops();
         fluctuationManager.scheduleFluctuation(20L*3600, 0.1D);
         /*
          * Register listeners :
@@ -65,11 +64,6 @@ public final class ShopPlugin extends JavaPlugin {
          * Register Commands:
          */
         registerCommands();
-    }
-
-    @Override
-    public void onDisable() {
-    	shopManager.saveShops();
     }
 
     private void registerCommands() {

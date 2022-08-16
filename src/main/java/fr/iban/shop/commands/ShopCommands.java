@@ -6,12 +6,8 @@ import fr.iban.shop.menu.menus.CategoryMenu;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import revxrsal.commands.annotation.*;
-import revxrsal.commands.bukkit.BukkitCommandActor;
 import revxrsal.commands.bukkit.annotation.CommandPermission;
 import revxrsal.commands.command.CommandActor;
-
-import javax.swing.*;
-import java.util.HashMap;
 
 @Command("shop")
 public class ShopCommands {
@@ -33,37 +29,35 @@ public class ShopCommands {
     @Subcommand("reload")
     @CommandPermission("shop.admin")
     public void reload(CommandActor sender) {
-        shopManager.loadShops();
+        shopManager.loadShopsFromDB();
         sender.reply("§aReload des shops effectué.");
-    }
-
-    @Subcommand("reloadconfig")
-    @CommandPermission("shop.admin")
-    public void reloadconfig(CommandActor sender) {
-        shopManager.reloadConfig();
-        sender.reply("§aReload de la configuration effectué.");
-
     }
 
     @Subcommand("addcategory")
     @CommandPermission("shop.admin")
     public void addCategory(CommandActor sender, String name) {
-        if(!shopManager.getShopItems().containsKey(name)) {
-            shopManager.getShopItems().put(name, new HashMap<>());
+        if (!shopManager.getCategories().contains(name)) {
+            shopManager.addCategory(name);
             sender.reply("§aCatégorie " + name + " ajoutée.");
-        }else {
+        } else {
             sender.reply("§cCette catégorie existe déjà.");
         }
+    }
 
+    @Subcommand("migrate")
+    @CommandPermission("shop.admin")
+    public void migrate(CommandActor sender) {
+        shopManager.migrate();
+        sender.reply("§aMigration effectuée.");
     }
 
     @Subcommand("givesellwand")
     @CommandPermission("shop.admin")
     public void giveSellWand(CommandActor sender, Player player, @Named("durability") @Range(min = 1, max = 99999) int durability) {
         ItemStack wand = shopManager.getSellWand(durability);
-        if(!isInventoryFull(player)) {
+        if (!isInventoryFull(player)) {
             player.getInventory().addItem(wand);
-        }else {
+        } else {
             player.getWorld().dropItem(player.getLocation(), wand);
         }
         player.sendMessage("§aVous avez reçu un bâton de vente.");

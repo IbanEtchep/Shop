@@ -14,8 +14,8 @@ import fr.iban.shop.utils.ShopAction;
 
 public class ConfirmMenu extends Menu {
 
-	private ShopItem shopItem;
-	private ShopAction action;
+	private final ShopItem shopItem;
+	private final ShopAction action;
 
 	private int amount = 1;
 
@@ -27,7 +27,7 @@ public class ConfirmMenu extends Menu {
 
 	@Override
 	public String getMenuName() {
-		return "§8" + action.getString() + " : " + shopItem.getItem().getItemMeta().getDisplayName();
+		return "§8" + action.getString() + " : " + shopItem.getItemStack().getItemMeta().getDisplayName();
 	}
 
 	@Override
@@ -38,6 +38,7 @@ public class ConfirmMenu extends Menu {
 	@Override
 	public void handleMenu(InventoryClickEvent e) {
 		ItemStack current = e.getCurrentItem();
+		if(current == null) return;
 
 		switch (current.getItemMeta().getDisplayName()) {
 		case "§c§lMettre à 1":
@@ -84,7 +85,7 @@ public class ConfirmMenu extends Menu {
 
 		double prix = shopItem.calculatePrice(amount, action);
 
-		inventory.setItem(22, new ItemBuilder(shopItem.getItem().clone()).setAmount(amount).addLore("§d§lPrix : §5§l" + prix + ShopPlugin.SYMBOLE).build());
+		inventory.setItem(22, new ItemBuilder(shopItem.getItemStack().clone()).setAmount(amount).addLore("§d§lPrix : §5§l" + prix + ShopPlugin.SYMBOLE).build());
 
 		if(amount > 1)
 			inventory.setItem(18, new ItemBuilder(Material.RED_STAINED_GLASS_PANE).setName("§c§lMettre à 1").build());

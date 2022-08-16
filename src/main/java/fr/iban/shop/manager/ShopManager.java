@@ -1,14 +1,13 @@
 package fr.iban.shop.manager;
 
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 
 import fr.iban.shop.ShopItem;
+import fr.iban.shop.storage.SqlStorage;
 import fr.iban.shop.utils.ItemBuilder;
+import fr.iban.shop.utils.ShopAction;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -26,20 +25,25 @@ public class ShopManager {
 	private final ShopPlugin plugin;
 
 	private final FileConfiguration shopsConfig;
+	private final SqlStorage storage;
 	public final NamespacedKey sellWandKey;
 	//         CATEGORY     ID       ITEM        
-	private final Map<String, Map<Integer, ShopItem>> shopItems = new HashMap<>();
+	private final List<ShopItem> shopItems = new ArrayList<>();
+	private List<String> categories = new ArrayList<>();
 
 	public ShopManager(ShopPlugin plugin) {
 		this.plugin = plugin;
 		shopsConfig = plugin.getShopsConfig();
+		this.storage = new SqlStorage();
 		sellWandKey = new NamespacedKey(plugin, "sell_wand");
+		loadShopsFromDB();
 	}
 
 	/*
 	 * Load tous les shops en cache.
 	 */
-	public void loadShops() {
+	private Map<String, Map<Integer, ShopItem>> loadShops() {
+		Map<String, Map<Integer, ShopItem>> shopItems = new HashMap<>();
 		plugin.getLogger().log(Level.INFO, "Chargement des shops...");
 		for(String category : Objects.requireNonNull(shopsConfig.getConfigurationSection("shops")).getKeys(false)) {
 			plugin.getLogger().log(Level.INFO, "Chargement de la catégorie : " + category);
@@ -59,60 +63,92 @@ public class ShopManager {
 			}	
 		}
 		plugin.getLogger().log(Level.INFO, "Chargement des shops terminé.");
-	}
-
-	/*
-	 * Sauvegarder un article dans shops.yml
-	 */
-	public void saveShop(ShopItem item) {
-		if(item.getItem() == null) return;
-		String catPath = "shops."+item.getCategory()+".";
-		String itemPath = catPath+item.getId()+".";
-		shopsConfig.set(itemPath+"buy", item.getBuy());
-		shopsConfig.set(itemPath+"sell", item.getSell());
-		shopsConfig.set(itemPath+"item", item.getItem());
-		shopsConfig.set(itemPath+"maxstock", item.getMaxStock());
-		shopsConfig.set(itemPath+"stock", item.getStock());
-	}
-
-	public void reloadShops() {
-		saveShops();
-		loadShops();
-		Bukkit.getPluginManager().callEvent(new ShopReloadEvent());
-	}
-
-	public void reloadConfig() {
-		plugin.reloadConfig();
-		loadShops();
-		Bukkit.getPluginManager().callEvent(new ShopReloadEvent());
-	}
-
-	public void saveShops() {
-		for(Map<Integer, ShopItem> category : getShopItems().values()) {
-			for(ShopItem item : category.values()) {
-				saveShop(item);
-			}
-		}
-		try {
-			shopsConfig.save(ShopPlugin.getInstance().getShopsFile());
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-
-	public Map<String, Map<Integer, ShopItem>> getShopItems() {
 		return shopItems;
 	}
 
-	public int getNewID(String category) {
-		int id = 0;
-		for(ShopItem item : shopItems.get(category).values()) {
-			if(item.getId() > id) {
-				id = item.getId();
+	public void reloadShops() {
+		loadShopsFromDB().thenRun(() ->
+				Bukkit.getScheduler().runTask(plugin, () -> Bukkit.getPluginManager().callEvent(new ShopReloadEvent()))
+		);
+	}
+
+	public List<ShopItem> getShopItems() {
+		return shopItems;
+	}
+
+	public List<ShopItem> getShopItems(String category) {
+		return shopItems.stream().filter(item -> item.getCategory().equals(category)).toList();
+	}
+
+	public List<String> getCategories() {
+		return categories;
+	}
+
+	/*
+	DATABASE ACCESS
+	 */
+
+	public CompletableFuture<Void> loadShopsFromDB() {
+		return CompletableFuture.runAsync(() -> {
+			shopItems.clear();
+			categories.clear();
+			categories = storage.getCategories();
+			plugin.getLogger().log(Level.INFO, "Chargement des shops...");
+			shopItems.addAll(storage.getItems());
+			plugin.getLogger().log(Level.INFO, shopItems.size() + " shops chargés.");
+		});
+	}
+
+	public void addShopItem(ShopItem item) {
+		Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+			storage.addItem(item);
+			reloadShops();
+		});
+	}
+
+	public void saveShopItem(ShopItem item) {
+		Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+			storage.updateItem(item);
+		});
+	}
+
+	public void saveStock(ShopItem item) {
+		Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+			storage.saveStock(item);
+		});
+	}
+
+	public void deleteShopItem(ShopItem item) {
+		Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+			storage.deleteItem(item.getId());
+			reloadShops();
+		});
+	}
+
+	public void addCategory(String name) {
+		if(categories.contains(name)) return;
+		Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> storage.addCategory(name));
+		categories.add(name);
+	}
+
+	public void addTransactionLog(ShopItem item, UUID uuid, int amount, double price, ShopAction action) {
+		Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> storage.addTransactionLog(item, uuid, amount, price, action));
+	}
+
+	public void migrate() {
+		Map<String, Map<Integer, ShopItem>> shopItems = loadShops();
+		shopItems.keySet().forEach(storage::addCategory);
+		plugin.getLogger().log(Level.INFO, "Catégories migrées.");
+		for (Map<Integer, ShopItem> value : shopItems.values()) {
+			for (ShopItem shopItem : value.values()) {
+				storage.addItem(shopItem);
 			}
 		}
-		return id + 1;
+		plugin.getLogger().log(Level.INFO, "Items migrés.");
 	}
+	/*
+	SELL WAND
+	 */
 
 	public ItemStack getSellWand(int durability) {
 		ItemStack wand = new ItemBuilder(Material.STICK)

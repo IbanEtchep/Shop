@@ -42,7 +42,7 @@ public final class ShopPlugin extends JavaPlugin {
         createShopsConfig();
         shopManager = new ShopManager(this);
         transactionManager = new TransactionManager(this);
-        fluctuationManager = new FluctuationManager(shopManager);
+        fluctuationManager = new FluctuationManager(this);
         PluginManager pm = getServer().getPluginManager();
         
         //Vault setup

@@ -35,10 +35,12 @@ public final class ShopPlugin extends JavaPlugin {
     private FluctuationManager fluctuationManager;
     private static Economy econ = null;
     public static final String SYMBOLE = " §e⛃§r";
+    public static String STOCK_SYNC_CHANNEL = "StockSyncChannel";
 
     @Override
     public void onEnable() {
     	instance = this;
+        saveDefaultConfig();
         createShopsConfig();
         shopManager = new ShopManager(this);
         transactionManager = new TransactionManager(this);
@@ -52,7 +54,9 @@ public final class ShopPlugin extends JavaPlugin {
             return;
         }
 
-        fluctuationManager.scheduleFluctuation(20L*3600, 0.1D);
+        if(getConfig().getBoolean("fluctuation.enabled", false)) {
+            fluctuationManager.scheduleFluctuation(20L*3600, 0.1D);
+        }
         /*
          * Register listeners :
          */

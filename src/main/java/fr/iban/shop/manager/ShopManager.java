@@ -4,10 +4,12 @@ import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 
+import fr.iban.bukkitcore.CoreBukkitPlugin;
 import fr.iban.shop.ShopItem;
 import fr.iban.shop.storage.SqlStorage;
 import fr.iban.shop.utils.ItemBuilder;
 import fr.iban.shop.utils.ShopAction;
+import fr.iban.shop.utils.StockSyncMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -84,6 +86,9 @@ public class ShopManager {
 		return categories;
 	}
 
+	public ShopItem getShopItemByID(int id) {
+		return shopItems.stream().filter(item -> item.getId() == id).findFirst().orElse(null);
+	}
 	/*
 	DATABASE ACCESS
 	 */
@@ -116,6 +121,8 @@ public class ShopManager {
 		Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
 			storage.saveStock(item);
 		});
+		StockSyncMessage message = new StockSyncMessage(item.getId(), item.getStock());
+		CoreBukkitPlugin.getInstance().getMessagingManager().sendMessage(ShopPlugin.STOCK_SYNC_CHANNEL, message);
 	}
 
 	public void deleteShopItem(ShopItem item) {

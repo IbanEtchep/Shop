@@ -6,6 +6,7 @@ import fr.iban.shop.manager.ShopManager;
 import fr.iban.shop.menu.PaginatedMenu;
 import fr.iban.shop.utils.ItemBuilder;
 import fr.iban.shop.utils.ShopAction;
+import net.milkbowl.vault.economy.Economy;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -19,6 +20,7 @@ import java.util.List;
 public class CategoryMenu extends PaginatedMenu{
 
 	private final String category;
+	private Economy economy = ShopPlugin.getInstance().getEconomy();
 
 	public CategoryMenu(Player player, String category) {
 		super(player);
@@ -139,13 +141,13 @@ public class CategoryMenu extends PaginatedMenu{
 				.addLore(shopItem.getMaxStock() == 0 ? "§f§lStock: §7illimité" : "§f§lStock: §7" + shopItem.getStock()+"§f/§8"+shopItem.getMaxStock())
 				.build();
 		if(shopItem.getBuyPrice() != 0) {
-			it = new ItemBuilder(it).addLore("§f§lAchat: §b" + shopItem.calculatePrice(1, ShopAction.BUY) + ShopPlugin.SYMBOLE + shopItem.getPriceVariationString(ShopAction.BUY) + "§7 (clic gauche)").build();
+			it = new ItemBuilder(it).addLore("§f§lAchat: §b" + economy.format(shopItem.calculatePrice(1, ShopAction.BUY)) + shopItem.getPriceVariationString(ShopAction.BUY) + "§7 (clic gauche)").build();
 		}
 		if(shopItem.getSellPrice() != 0) {
 			int amount = ShopPlugin.getInstance().getTransactionManager().getSellAllAmount(shopItem, player);
-			it = new ItemBuilder(it).addLore("§f§lVente: §b" + shopItem.calculatePrice(1, ShopAction.SELL) + ShopPlugin.SYMBOLE + shopItem.getPriceVariationString(ShopAction.SELL) + "§7 (clic droit)").build();
+			it = new ItemBuilder(it).addLore("§f§lVente: §b" + economy.format(shopItem.calculatePrice(1, ShopAction.SELL)) + shopItem.getPriceVariationString(ShopAction.SELL) + "§7 (clic droit)").build();
 			if(amount != 0) {
-				it = new ItemBuilder(it).addLore("§f§lVente rapide : §b×" + amount + "➪"+ shopItem.calculatePrice(amount, ShopAction.SELL)+ ShopPlugin.SYMBOLE + " §7(clic molette)").build();
+				it = new ItemBuilder(it).addLore("§f§lVente rapide : §b×" + amount + "➪"+ economy.format(shopItem.calculatePrice(amount, ShopAction.SELL)) + " §7(clic molette)").build();
 			}
 		}
 		return it;

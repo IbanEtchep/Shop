@@ -57,7 +57,7 @@ public class InteractListener implements Listener {
 
 
         if (block.getState() instanceof Chest chest) {
-            Inventory inventory = chest.getBlockInventory();
+            Inventory inventory = chest.getInventory();
             if (plugin.getTransactionManager().sellShopItems(player, inventory)) {
                 plugin.getShopManager().consumeSellWand(e.getItem(), player);
             }

@@ -131,7 +131,7 @@ public class TransactionManager {
     public boolean sellShopItems(Player player, Inventory inventory) {
         List<ShopItem> shopItems = getItemsToSell(inventory);
         if (shopItems.isEmpty()) {
-            player.sendMessage("§cCe coffre ne contient rien qui puisse être vendu.");
+            player.sendMessage("§cCet inventaire ne contient rien qui puisse être vendu.");
             return false;
         }
         for (ShopItem shopItem : shopItems) {

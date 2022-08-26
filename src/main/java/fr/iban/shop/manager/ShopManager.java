@@ -112,15 +112,11 @@ public class ShopManager {
 	}
 
 	public void saveShopItem(ShopItem item) {
-		Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-			storage.updateItem(item);
-		});
+		Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> storage.updateItem(item));
 	}
 
 	public void saveStock(ShopItem item) {
-		Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-			storage.saveStock(item);
-		});
+		Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> storage.saveStock(item));
 		StockSyncMessage message = new StockSyncMessage(item.getId(), item.getStock());
 		CoreBukkitPlugin.getInstance().getMessagingManager().sendMessage(ShopPlugin.STOCK_SYNC_CHANNEL, message);
 	}

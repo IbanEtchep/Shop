@@ -8,6 +8,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.Chest;
+import org.bukkit.block.Container;
+import org.bukkit.block.ShulkerBox;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -56,13 +58,14 @@ public class InteractListener implements Listener {
         }
 
 
-        if (block.getState() instanceof Chest chest) {
-            Inventory inventory = chest.getBlockInventory();
+        if (block.getState() instanceof Container container) {
+            Inventory inventory = container.getInventory();
             if (plugin.getTransactionManager().sellShopItems(player, inventory)) {
                 plugin.getShopManager().consumeSellWand(e.getItem(), player);
             }
             e.setCancelled(true);
         }
+
     }
 
 }

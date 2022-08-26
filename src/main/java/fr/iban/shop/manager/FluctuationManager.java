@@ -1,18 +1,16 @@
 package fr.iban.shop.manager;
 
-import java.util.Map;
-import java.util.Random;
-
 import fr.iban.shop.ShopItem;
+import fr.iban.shop.ShopPlugin;
+import fr.iban.shop.events.ShopFluctuateEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import fr.iban.shop.ShopPlugin;
-import fr.iban.shop.events.ShopFluctuateEvent;
+import java.util.Random;
 
 public class FluctuationManager {
 
-    private ShopPlugin plugin;
+    private final ShopPlugin plugin;
     private final ShopManager shopmanager;
     private final Random random = new Random();
     private double modifier = 1;

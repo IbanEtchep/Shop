@@ -18,6 +18,7 @@ import org.bukkit.configuration.file.FileConfiguration;
 import fr.iban.shop.ShopPlugin;
 import fr.iban.shop.events.ShopReloadEvent;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
@@ -190,5 +191,17 @@ public class ShopManager {
 			}
 
 		}catch (NullPointerException ignore) {}
+	}
+
+	public List<ShopItem> getItemsToSell(Inventory inventory) {
+		List<ShopItem> shopItems = new ArrayList<>();
+		for (ItemStack itemStack : inventory.getStorageContents()) {
+			for (ShopItem shopItem : getShopItems()) {
+				if (shopItem.getItemStack().isSimilar(itemStack) && !shopItems.contains(shopItem)) {
+					shopItems.add(shopItem);
+				}
+			}
+		}
+		return shopItems;
 	}
 }

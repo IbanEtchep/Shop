@@ -20,7 +20,7 @@ import java.util.List;
 public class CategoryMenu extends PaginatedMenu{
 
 	private final String category;
-	private Economy economy = ShopPlugin.getInstance().getEconomy();
+	private final Economy economy = ShopPlugin.getInstance().getEconomy();
 
 	public CategoryMenu(Player player, String category) {
 		super(player);
@@ -78,7 +78,7 @@ public class CategoryMenu extends PaginatedMenu{
 					if(clickedItem.getBuyPrice() > 0) {
 						new ConfirmMenu(p, clickedItem, ShopAction.BUY).open();
 					}
-				}else if(e.getClick() == ClickType.MIDDLE) {
+				}else if(e.getClick() == ClickType.SHIFT_RIGHT) {
 					//Tout vendre
 					if(clickedItem.getSellPrice() > 0) {
 						int amount = ShopPlugin.getInstance().getTransactionManager().getSellAllAmount(clickedItem, player);
@@ -87,7 +87,7 @@ public class CategoryMenu extends PaginatedMenu{
 							super.open();
 						}
 					}
-				}else if(e.getClick() == ClickType.SHIFT_RIGHT && player.hasPermission("shop.admin")) {
+				}else if(e.getClick() == ClickType.SHIFT_LEFT && player.hasPermission("shop.admin")) {
 					new ShopItemEditMenu(p, clickedItem).open();
 				}
 
@@ -147,7 +147,7 @@ public class CategoryMenu extends PaginatedMenu{
 			int amount = ShopPlugin.getInstance().getTransactionManager().getSellAllAmount(shopItem, player);
 			it = new ItemBuilder(it).addLore("§f§lVente: §b" + economy.format(shopItem.calculatePrice(1, ShopAction.SELL)) + shopItem.getPriceVariationString(ShopAction.SELL) + "§7 (clic droit)").build();
 			if(amount != 0) {
-				it = new ItemBuilder(it).addLore("§f§lVente rapide : §b×" + amount + "➪"+ economy.format(shopItem.calculatePrice(amount, ShopAction.SELL)) + " §7(clic molette)").build();
+				it = new ItemBuilder(it).addLore("§f§lVente rapide : §b×" + amount + "➪"+ economy.format(shopItem.calculatePrice(amount, ShopAction.SELL)) + " §7(shift + clic gauche)").build();
 			}
 		}
 		return it;

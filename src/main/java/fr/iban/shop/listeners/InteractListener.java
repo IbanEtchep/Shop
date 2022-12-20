@@ -1,24 +1,17 @@
 package fr.iban.shop.listeners;
 
-import fr.iban.lands.LandManager;
+import fr.iban.bukkitcore.menu.ConfirmMenu;
 import fr.iban.lands.LandsPlugin;
 import fr.iban.lands.objects.Land;
 import fr.iban.shop.ShopPlugin;
-import org.bukkit.Bukkit;
-import org.bukkit.Material;
 import org.bukkit.block.Block;
-import org.bukkit.block.Chest;
 import org.bukkit.block.Container;
-import org.bukkit.block.ShulkerBox;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.InventoryHolder;
-
-import java.awt.*;
 
 public class InteractListener implements Listener {
 
@@ -60,8 +53,19 @@ public class InteractListener implements Listener {
 
         if (block.getState() instanceof Container container) {
             Inventory inventory = container.getInventory();
-            if (plugin.getTransactionManager().sellShopItems(player, inventory)) {
-                plugin.getShopManager().consumeSellWand(e.getItem(), player);
+            double sellAllTotal = plugin.getTransactionManager().getSellWandPrice(inventory);
+            if(sellAllTotal > 0) {
+                new ConfirmMenu(player, "§8Tout vendre pour : " + plugin.getEconomy().format(sellAllTotal),
+                        "§fTout vendre le contenu du coffre pour " + plugin.getEconomy().format(sellAllTotal), result -> {
+                    if(result) {
+                        if (plugin.getTransactionManager().sellShopItems(player, inventory)) {
+                            plugin.getShopManager().consumeSellWand(e.getItem(), player);
+                        }
+                    }
+                    player.closeInventory();
+                }).open();
+            }else {
+                player.sendMessage("§cIl n'y a rien à vendre dans ce coffre.");
             }
             e.setCancelled(true);
         }

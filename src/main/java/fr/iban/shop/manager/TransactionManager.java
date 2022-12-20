@@ -98,7 +98,7 @@ public class TransactionManager {
 
     }
 
-    public int getSellAllAmount(ShopItem item, Player player, ItemStack[] storage) {
+    public int getSellAllAmount(ShopItem item, ItemStack[] storage) {
         int amount = 0;
         for (ItemStack it : storage) {
             if (it != null && it.isSimilar(item.getItemStack())) {
@@ -109,34 +109,40 @@ public class TransactionManager {
     }
 
     public int getSellAllAmount(ShopItem item, Player player) {
-        return getSellAllAmount(item, player, player.getInventory().getStorageContents());
+        return getSellAllAmount(item, player.getInventory().getStorageContents());
     }
 
     private boolean isInventoryFull(Player player) {
         return player.getInventory().firstEmpty() == -1;
     }
 
-    public List<ShopItem> getItemsToSell(Inventory inventory) {
-        List<ShopItem> shopItems = new ArrayList<>();
-        for (ItemStack itemStack : inventory.getStorageContents()) {
-            for (ShopItem shopItem : shopManager.getShopItems()) {
-                if (shopItem.getItemStack().isSimilar(itemStack) && !shopItems.contains(shopItem)) {
-                    shopItems.add(shopItem);
-                }
-            }
-        }
-        return shopItems;
-    }
-
     public boolean sellShopItems(Player player, Inventory inventory) {
-        List<ShopItem> shopItems = getItemsToSell(inventory);
+        List<ShopItem> shopItems = shopManager.getItemsToSell(inventory);
         if (shopItems.isEmpty()) {
             player.sendMessage("§cCet inventaire ne contient rien qui puisse être vendu.");
             return false;
         }
         for (ShopItem shopItem : shopItems) {
-            sellItem(player, shopItem, getSellAllAmount(shopItem, player, inventory.getStorageContents()), inventory);
+            sellItem(player, shopItem, getSellAllAmount(shopItem, inventory.getStorageContents()), inventory);
         }
         return true;
+    }
+
+    public double getSellWandPrice(Inventory inventory) {
+        List<ShopItem> shopItems = shopManager.getItemsToSell(inventory);
+        double total = 0;
+
+        for (ShopItem shopItem : shopItems) {
+            int amount = getSellAllAmount(shopItem, inventory.getStorageContents());
+            if (shopItem.getItemStack() == null || shopItem.getItemStack().getType() == Material.AIR) continue;
+            int remainingStock = shopItem.getMaxStock() - shopItem.getStock();
+            if (shopItem.getMaxStock() != 0 && amount > remainingStock) {
+                if (remainingStock > 0) {
+                    amount = remainingStock;
+                }
+            }
+            total += shopItem.calculatePrice(amount, ShopAction.SELL);
+        }
+        return total;
     }
 }

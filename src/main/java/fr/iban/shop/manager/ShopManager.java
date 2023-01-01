@@ -1,12 +1,10 @@
 package fr.iban.shop.manager;
 
-import java.util.*;
-import java.util.concurrent.CompletableFuture;
-import java.util.logging.Level;
-
 import fr.iban.bukkitcore.CoreBukkitPlugin;
 import fr.iban.shop.ShopItem;
-import fr.iban.shop.storage.SqlStorage;
+import fr.iban.shop.ShopPlugin;
+import fr.iban.shop.events.ShopReloadEvent;
+import fr.iban.shop.storage.ShopDbAccess;
 import fr.iban.shop.utils.ItemBuilder;
 import fr.iban.shop.utils.ShopAction;
 import fr.iban.shop.utils.StockSyncMessage;
@@ -14,21 +12,22 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.configuration.file.FileConfiguration;
-
-import fr.iban.shop.ShopPlugin;
-import fr.iban.shop.events.ShopReloadEvent;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 
+import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.logging.Level;
+
 public class ShopManager {
 
 	private final ShopPlugin plugin;
 
 	private final FileConfiguration shopsConfig;
-	private final SqlStorage storage;
+	private final ShopDbAccess dbAccess;
 	public final NamespacedKey sellWandKey;
 	//         CATEGORY     ID       ITEM        
 	private final List<ShopItem> shopItems = new ArrayList<>();
@@ -37,7 +36,7 @@ public class ShopManager {
 	public ShopManager(ShopPlugin plugin) {
 		this.plugin = plugin;
 		shopsConfig = plugin.getShopsConfig();
-		this.storage = new SqlStorage();
+		this.dbAccess = new ShopDbAccess(plugin);
 		sellWandKey = new NamespacedKey(plugin, "sell_wand");
 		loadShopsFromDB();
 	}
@@ -98,54 +97,54 @@ public class ShopManager {
 		return CompletableFuture.runAsync(() -> {
 			shopItems.clear();
 			categories.clear();
-			categories = storage.getCategories();
+			categories = dbAccess.getCategories();
 			plugin.getLogger().log(Level.INFO, "Chargement des shops...");
-			shopItems.addAll(storage.getItems());
+			shopItems.addAll(dbAccess.getItems());
 			plugin.getLogger().log(Level.INFO, shopItems.size() + " shops chargés.");
 		});
 	}
 
 	public void addShopItem(ShopItem item) {
 		Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-			storage.addItem(item);
+			dbAccess.addItem(item);
 			reloadShops();
 		});
 	}
 
 	public void saveShopItem(ShopItem item) {
-		Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> storage.updateItem(item));
+		Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> dbAccess.updateItem(item));
 	}
 
 	public void saveStock(ShopItem item) {
-		Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> storage.saveStock(item));
+		Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> dbAccess.saveStock(item));
 		StockSyncMessage message = new StockSyncMessage(item.getId(), item.getStock());
 		CoreBukkitPlugin.getInstance().getMessagingManager().sendMessage(ShopPlugin.STOCK_SYNC_CHANNEL, message);
 	}
 
 	public void deleteShopItem(ShopItem item) {
 		Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-			storage.deleteItem(item.getId());
+			dbAccess.deleteItem(item.getId());
 			reloadShops();
 		});
 	}
 
 	public void addCategory(String name) {
 		if(categories.contains(name)) return;
-		Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> storage.addCategory(name));
+		Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> dbAccess.addCategory(name));
 		categories.add(name);
 	}
 
 	public void addTransactionLog(ShopItem item, UUID uuid, int amount, double price, ShopAction action) {
-		Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> storage.addTransactionLog(item, uuid, amount, price, action));
+		Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> dbAccess.addTransactionLog(item, uuid, amount, price, action));
 	}
 
 	public void migrate() {
 		Map<String, Map<Integer, ShopItem>> shopItems = loadShops();
-		shopItems.keySet().forEach(storage::addCategory);
+		shopItems.keySet().forEach(dbAccess::addCategory);
 		plugin.getLogger().log(Level.INFO, "Catégories migrées.");
 		for (Map<Integer, ShopItem> value : shopItems.values()) {
 			for (ShopItem shopItem : value.values()) {
-				storage.addItem(shopItem);
+				dbAccess.addItem(shopItem);
 			}
 		}
 		plugin.getLogger().log(Level.INFO, "Items migrés.");
@@ -203,5 +202,9 @@ public class ShopManager {
 			}
 		}
 		return shopItems;
+	}
+
+	public ShopDbAccess getDbAccess() {
+		return dbAccess;
 	}
 }

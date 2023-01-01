@@ -3,9 +3,11 @@ package fr.iban.shop;
 import java.io.File;
 import java.io.IOException;
 
+import fr.iban.bukkitcore.CoreBukkitPlugin;
 import fr.iban.lands.LandManager;
 import fr.iban.lands.LandsPlugin;
 import fr.iban.shop.commands.ShopCommands;
+import fr.iban.shop.commands.ShopStatsCommands;
 import fr.iban.shop.listeners.InteractListener;
 import fr.iban.shop.listeners.ServiceListeners;
 import org.bukkit.Bukkit;
@@ -72,7 +74,9 @@ public final class ShopPlugin extends JavaPlugin {
 
     private void registerCommands() {
         BukkitCommandHandler commandHandler = BukkitCommandHandler.create(this);
+        commandHandler.accept(CoreBukkitPlugin.getInstance().getCommandHandlerVisitor());
         commandHandler.register(new ShopCommands(this));
+        commandHandler.register(new ShopStatsCommands(this));
     }
 
     public FileConfiguration getShopsConfig() {

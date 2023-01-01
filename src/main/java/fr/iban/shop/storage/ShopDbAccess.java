@@ -2,6 +2,7 @@ package fr.iban.shop.storage;
 
 import fr.iban.common.data.sql.DbAccess;
 import fr.iban.shop.ShopItem;
+import fr.iban.shop.ShopPlugin;
 import fr.iban.shop.utils.ItemStackSerializer;
 import fr.iban.shop.utils.ShopAction;
 import org.bukkit.inventory.ItemStack;
@@ -12,11 +13,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-public class SqlStorage {
+public class ShopDbAccess {
 
     private final DataSource ds = DbAccess.getDataSource();
+    private final ShopPlugin plugin;
 
-    public SqlStorage() {
+
+    public ShopDbAccess(ShopPlugin plugin) {
+        this.plugin = plugin;
         init();
     }
 
@@ -259,6 +263,126 @@ public class SqlStorage {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+
+    public List<String> getPlayerTopPurchases(UUID uuid) {
+        List<String> purchases = new ArrayList<>();
+        String sql = "SELECT I.name, buyPrice, ROUND(SUM(T.price)) AS TotalPrice, ROUND(SUM(T.amount)) AS TotalSales " +
+                "FROM `shop_transactions` T JOIN shop_items I ON I.id=T.item_id " +
+                "WHERE T.type=0 " +
+                "AND T.uuid=? " +
+                "GROUP BY T.item_id  " +
+                "ORDER BY TotalPrice  DESC " +
+                "LIMIT 10;";
+
+        try (Connection connection = ds.getConnection()) {
+            try (PreparedStatement ps = connection.prepareStatement(sql)) {
+                ps.setString(1, uuid.toString());
+                try (ResultSet rs = ps.executeQuery()) {
+                    for(int i = 1; rs.next() ; i++) {
+                        String itemName = rs.getString("I.name");
+                        String unitPrice = rs.getString("buyPrice")+plugin.getEconomy().currencyNameSingular()+"/u";
+                        String totalSales = rs.getString("TotalSales");
+                        String totalPrice = rs.getString("TotalPrice");
+                        purchases.add(i + "- " + itemName + " §7"+unitPrice+" §bx"+ totalSales + " §f→ §3"
+                                + totalPrice + plugin.getEconomy().currencyNameSingular());
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return purchases;
+    }
+
+    public List<String> getPlayerTopSales(UUID uuid) {
+        List<String> purchases = new ArrayList<>();
+        String sql = "SELECT I.name, sellPrice, ROUND(SUM(T.price)) AS TotalPrice, ROUND(SUM(T.amount)) AS TotalSales " +
+                "FROM `shop_transactions` T JOIN shop_items I ON I.id=T.item_id " +
+                "WHERE T.type=1 " +
+                "AND T.uuid=? " +
+                "GROUP BY T.item_id  " +
+                "ORDER BY TotalPrice  DESC " +
+                "LIMIT 10;";
+
+        try (Connection connection = ds.getConnection()) {
+            try (PreparedStatement ps = connection.prepareStatement(sql)) {
+                ps.setString(1, uuid.toString());
+                try (ResultSet rs = ps.executeQuery()) {
+                    for(int i = 1; rs.next() ; i++) {
+                        String itemName = rs.getString("I.name");
+                        String unitPrice = rs.getString("sellPrice")+plugin.getEconomy().currencyNameSingular()+"/u";
+                        String totalSales = rs.getString("TotalSales");
+                        String totalPrice = rs.getString("TotalPrice");
+                        purchases.add(i + "- " + itemName + " §7"+unitPrice+" §bx"+ totalSales + " §f→ §3"
+                                + totalPrice + plugin.getEconomy().currencyNameSingular());
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return purchases;
+    }
+
+    public List<String> getTopPurchases() {
+        List<String> purchases = new ArrayList<>();
+        String sql = "SELECT I.name, buyPrice, ROUND(SUM(T.price)) AS TotalPrice, ROUND(SUM(T.amount)) AS TotalSales " +
+                "FROM `shop_transactions` T JOIN shop_items I ON I.id=T.item_id " +
+                "WHERE T.type=0 " +
+                "GROUP BY T.item_id  " +
+                "ORDER BY TotalPrice  DESC " +
+                "LIMIT 10;";
+
+        try (Connection connection = ds.getConnection()) {
+            try (PreparedStatement ps = connection.prepareStatement(sql)) {
+                try (ResultSet rs = ps.executeQuery()) {
+                    for(int i = 1; rs.next() ; i++) {
+                        String itemName = rs.getString("I.name");
+                        String unitPrice = rs.getString("buyPrice")+plugin.getEconomy().currencyNameSingular()+"/u";
+                        String totalSales = rs.getString("TotalSales");
+                        String totalPrice = rs.getString("TotalPrice");
+                        purchases.add(i + "- " + itemName + " §7"+unitPrice+" §bx"+ totalSales + " §f→ §3"
+                                + totalPrice + plugin.getEconomy().currencyNameSingular());
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return purchases;
+    }
+
+    public List<String> getTopSales() {
+        List<String> purchases = new ArrayList<>();
+        String sql = "SELECT I.name, sellPrice, ROUND(SUM(T.price)) AS TotalPrice, ROUND(SUM(T.amount)) AS TotalSales " +
+                "FROM `shop_transactions` T JOIN shop_items I ON I.id=T.item_id " +
+                "WHERE T.type=1 " +
+                "GROUP BY T.item_id  " +
+                "ORDER BY TotalPrice  DESC " +
+                "LIMIT 10;";
+
+        try (Connection connection = ds.getConnection()) {
+            try (PreparedStatement ps = connection.prepareStatement(sql)) {
+                try (ResultSet rs = ps.executeQuery()) {
+                    for(int i = 1; rs.next() ; i++) {
+                        String itemName = rs.getString("I.name");
+                        String unitPrice = rs.getString("sellPrice")+plugin.getEconomy().currencyNameSingular()+"/u";
+                        String totalSales = rs.getString("TotalSales");
+                        String totalPrice = rs.getString("TotalPrice");
+                        purchases.add(i + "- " + itemName + " §7"+unitPrice+" §bx"+ totalSales + " §f→ §3"
+                                + totalPrice + plugin.getEconomy().currencyNameSingular());
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return purchases;
     }
 
 }

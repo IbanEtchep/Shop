@@ -135,9 +135,10 @@ public class TransactionManager {
         for (ShopItem shopItem : shopItems) {
             int amount = getSellAllAmount(shopItem, inventory.getStorageContents());
             if (shopItem.getItemStack() == null || shopItem.getItemStack().getType() == Material.AIR) continue;
+
             int remainingStock = shopItem.getMaxStock() - shopItem.getStock();
             if (shopItem.getMaxStock() != 0 && amount > remainingStock) {
-                if (remainingStock > 0) {
+                if (remainingStock >= 0) {
                     amount = remainingStock;
                 }
             }

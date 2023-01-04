@@ -147,7 +147,7 @@ public class CategoryMenu extends PaginatedMenu{
 			int amount = ShopPlugin.getInstance().getTransactionManager().getSellAllAmount(shopItem, player);
 			it = new ItemBuilder(it).addLore("§f§lVente: §b" + economy.format(shopItem.calculatePrice(1, ShopAction.SELL)) + shopItem.getPriceVariationString(ShopAction.SELL) + "§7 (clic droit)").build();
 			if(amount != 0) {
-				it = new ItemBuilder(it).addLore("§f§lVente rapide : §b×" + amount + "➪"+ economy.format(shopItem.calculatePrice(amount, ShopAction.SELL)) + " §7(shift + clic gauche)").build();
+				it = new ItemBuilder(it).addLore("§f§lVente rapide : §b×" + amount + "➪"+ economy.format(shopItem.calculatePrice(amount, ShopAction.SELL)) + " §7(shift + clic droit)").build();
 			}
 		}
 		return it;

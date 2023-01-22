@@ -21,10 +21,20 @@ public class CategoryMenu extends PaginatedMenu{
 
 	private final String category;
 	private final Economy economy = ShopPlugin.getInstance().getEconomy();
+	private final ShopManager shopManager;
+	private ShopAction shopAction;
+	private final List<ShopItem> shopItems;
+
+	public CategoryMenu(Player player, String category, ShopAction shopAction) {
+		this(player, category);
+		this.shopAction = shopAction;
+	}
 
 	public CategoryMenu(Player player, String category) {
 		super(player);
 		this.category = category;
+		shopManager = ShopPlugin.getInstance().getShopManager();
+		shopItems = new ArrayList<>(shopManager.getShopItems(category));
 	}
 
 	@Override
@@ -40,8 +50,6 @@ public class CategoryMenu extends PaginatedMenu{
 	@Override
 	public void handleMenu(InventoryClickEvent e) {
 		Player p = (Player) e.getWhoClicked();
-		ShopManager sm = ShopPlugin.getInstance().getShopManager();
-		List<ShopItem> shopItems = new ArrayList<>(sm.getShopItems(category));
 
 		if(e.getClickedInventory() == e.getView().getTopInventory()) {
 			if(e.getCurrentItem() == null) return;
@@ -68,12 +76,12 @@ public class CategoryMenu extends PaginatedMenu{
 
 				if(clickedItem == null) return;		
 
-				if(e.getClick() == ClickType.RIGHT) {
+				if((e.getClick() == ClickType.RIGHT && shopAction == null) || shopAction == ShopAction.SELL) {
 					//Vendre
 					if(clickedItem.getSellPrice() > 0) {
 						new ConfirmMenu(p, clickedItem, ShopAction.SELL).open();
 					}
-				}else if(e.getClick() == ClickType.LEFT) {
+				}else if(e.getClick() == ClickType.LEFT && (shopAction == null || shopAction == ShopAction.BUY)) {
 					//Acheter
 					if(clickedItem.getBuyPrice() > 0) {
 						new ConfirmMenu(p, clickedItem, ShopAction.BUY).open();
@@ -100,7 +108,7 @@ public class CategoryMenu extends PaginatedMenu{
 			ShopItem item = new ShopItem(
 					-1,
 					0, 0, new ItemBuilder(e.getCurrentItem().clone()).setAmount(1).build(), category, 0, 0);
-			sm.addShopItem(item);
+			shopManager.addShopItem(item);
 		}
 	}
 
@@ -118,9 +126,7 @@ public class CategoryMenu extends PaginatedMenu{
 
 	@Override
 	public void setMenuItems() {
-		ShopManager sm = ShopPlugin.getInstance().getShopManager();
 		addMenuBorder();
-		List<ShopItem> shopItems = new ArrayList<>(sm.getShopItems(category));
 
 		if(!shopItems.isEmpty()) {
 			for(int i = 0; i < getMaxItemsPerPage(); i++) {
@@ -140,16 +146,32 @@ public class CategoryMenu extends PaginatedMenu{
 		ItemStack it = new ItemBuilder(shopItem.getItemStack().clone())
 				.addLore(shopItem.getMaxStock() == 0 ? "§f§lStock: §7illimité" : "§f§lStock: §7" + shopItem.getStock()+"§f/§8"+shopItem.getMaxStock())
 				.build();
-		if(shopItem.getBuyPrice() != 0) {
-			it = new ItemBuilder(it).addLore("§f§lAchat: §b" + economy.format(shopItem.calculatePrice(1, ShopAction.BUY)) + shopItem.getPriceVariationString(ShopAction.BUY) + "§7 (clic gauche)").build();
-		}
-		if(shopItem.getSellPrice() != 0) {
-			int amount = ShopPlugin.getInstance().getTransactionManager().getSellAllAmount(shopItem, player);
-			it = new ItemBuilder(it).addLore("§f§lVente: §b" + economy.format(shopItem.calculatePrice(1, ShopAction.SELL)) + shopItem.getPriceVariationString(ShopAction.SELL) + "§7 (clic droit)").build();
-			if(amount != 0) {
-				it = new ItemBuilder(it).addLore("§f§lVente rapide : §b×" + amount + "➪"+ economy.format(shopItem.calculatePrice(amount, ShopAction.SELL)) + " §7(shift + clic droit)").build();
+
+		if(shopAction == null) {
+			if(shopItem.getBuyPrice() != 0) {
+				it = new ItemBuilder(it).addLore("§f§lAchat: §b" + economy.format(shopItem.calculatePrice(1, ShopAction.BUY)) + shopItem.getPriceVariationString(ShopAction.BUY) + "§7 (clic gauche)").build();
+			}
+			if(shopItem.getSellPrice() != 0) {
+				int amount = ShopPlugin.getInstance().getTransactionManager().getSellAllAmount(shopItem, player);
+				it = new ItemBuilder(it).addLore("§f§lVente: §b" + economy.format(shopItem.calculatePrice(1, ShopAction.SELL)) + shopItem.getPriceVariationString(ShopAction.SELL) + "§7 (clic droit)").build();
+				if(amount != 0) {
+					it = new ItemBuilder(it).addLore("§f§lVente rapide : §b×" + amount + "➪"+ economy.format(shopItem.calculatePrice(amount, ShopAction.SELL)) + " §7(shift + clic droit)").build();
+				}
 			}
 		}
+
+		if(shopAction == ShopAction.BUY) {
+			if(shopItem.getBuyPrice() != 0) {
+				it = new ItemBuilder(it).addLore("§f§lAchat: §b" + economy.format(shopItem.calculatePrice(1, ShopAction.BUY)) + shopItem.getPriceVariationString(ShopAction.BUY)).build();
+			}
+		}
+
+		if(shopAction == ShopAction.SELL) {
+			if(shopItem.getSellPrice() != 0) {
+				it = new ItemBuilder(it).addLore("§f§lVente: §b" + economy.format(shopItem.calculatePrice(1, ShopAction.SELL)) + shopItem.getPriceVariationString(ShopAction.SELL)).build();
+			}
+		}
+
 		return it;
 	}
 

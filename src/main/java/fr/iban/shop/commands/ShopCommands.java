@@ -3,6 +3,7 @@ package fr.iban.shop.commands;
 import fr.iban.shop.ShopPlugin;
 import fr.iban.shop.manager.ShopManager;
 import fr.iban.shop.menu.menus.CategoryMenu;
+import fr.iban.shop.menu.menus.ShopTypeSelectMenu;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import revxrsal.commands.annotation.*;
@@ -23,7 +24,11 @@ public class ShopCommands {
     @Command("shop")
     @Default
     public void openCategory(Player sender, String category) {
-        new CategoryMenu(sender, category).open();
+        if(!sender.getName().startsWith(".")) {
+            new CategoryMenu(sender, category).open();
+        }else {
+            new ShopTypeSelectMenu(sender, action -> new CategoryMenu(sender, category, action).open()).open();
+        }
     }
 
     @Subcommand("reload")

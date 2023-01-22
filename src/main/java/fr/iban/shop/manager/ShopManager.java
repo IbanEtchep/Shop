@@ -29,7 +29,6 @@ public class ShopManager {
 	private final FileConfiguration shopsConfig;
 	private final ShopDbAccess dbAccess;
 	public final NamespacedKey sellWandKey;
-	//         CATEGORY     ID       ITEM        
 	private final List<ShopItem> shopItems = new ArrayList<>();
 	private List<String> categories = new ArrayList<>();
 

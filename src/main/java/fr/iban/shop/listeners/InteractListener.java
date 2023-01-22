@@ -65,7 +65,7 @@ public class InteractListener implements Listener {
                     player.closeInventory();
                 }).open();
             }else {
-                player.sendMessage("§cIl n'y a rien à vendre dans ce coffre.");
+                player.sendMessage("§cIl n'y a rien à vendre dans ce coffre ou le stock du marché est plein.");
             }
             e.setCancelled(true);
         }

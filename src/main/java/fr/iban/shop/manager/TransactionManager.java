@@ -119,7 +119,7 @@ public class TransactionManager {
     public boolean sellShopItems(Player player, Inventory inventory) {
         List<ShopItem> shopItems = shopManager.getItemsToSell(inventory);
         if (shopItems.isEmpty()) {
-            player.sendMessage("§cCet inventaire ne contient rien qui puisse être vendu.");
+            player.sendMessage("§cCet inventaire ne contient rien qui puisse être vendu ou le stock au marché est plein.");
             return false;
         }
         for (ShopItem shopItem : shopItems) {
@@ -144,6 +144,7 @@ public class TransactionManager {
             }
             total += shopItem.calculatePrice(amount, ShopAction.SELL);
         }
+
         return total;
     }
 }

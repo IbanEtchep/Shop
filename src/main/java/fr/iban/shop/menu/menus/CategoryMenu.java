@@ -13,6 +13,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.PotionMeta;
+import org.bukkit.potion.PotionData;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -175,13 +177,28 @@ public class CategoryMenu extends PaginatedMenu{
 		return it;
 	}
 
+	private boolean areItemsSimilar(ItemStack item1, ItemStack item2) {
+		if(item1.getType() != item2.getType()) return false;
+		if(!item1.getItemMeta().getDisplayName().equals(item2.getItemMeta().getDisplayName())) return false;
+		if(item1.getItemMeta() instanceof PotionMeta potionMeta1) {
+			PotionMeta potionMeta2 = (PotionMeta) item2.getItemMeta();
+			PotionData potionData1 = potionMeta1.getBasePotionData();
+			PotionData potionData2 = potionMeta2.getBasePotionData();
+			return potionData1.getType() == potionData2.getType() &&
+					potionData1.isExtended() == potionData2.isExtended() &&
+					potionData1.isUpgraded() == potionData2.isUpgraded();
+		}
+		return true;
+	}
+
 	private ShopItem getMatch(List<ShopItem> fromlist, ItemStack item) {
 		for (ShopItem shopItem : fromlist) {
-			if(shopItem.getItemStack().getType() == item.getType() && shopItem.getItemStack().getItemMeta().getDisplayName().equals(item.getItemMeta().getDisplayName())) {
+			if (areItemsSimilar(shopItem.getItemStack(), item)) {
 				return shopItem;
 			}
 		}
 		return null;
 	}
+
 
 }

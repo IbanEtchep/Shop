@@ -2,7 +2,7 @@ package fr.iban.shop.listeners;
 
 import fr.iban.bukkitcore.menu.ConfirmMenu;
 import fr.iban.lands.LandsPlugin;
-import fr.iban.lands.objects.Land;
+import fr.iban.lands.land.Land;
 import fr.iban.shop.ShopPlugin;
 import org.bukkit.block.Block;
 import org.bukkit.block.Container;

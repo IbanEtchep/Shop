@@ -1,9 +1,7 @@
 package fr.iban.shop.listeners;
 
-import com.google.gson.Gson;
 import fr.iban.bukkitcore.event.CoreMessageEvent;
 import fr.iban.common.messaging.Message;
-import fr.iban.lands.LandsPlugin;
 import fr.iban.shop.ShopItem;
 import fr.iban.shop.ShopPlugin;
 import fr.iban.shop.manager.ShopManager;

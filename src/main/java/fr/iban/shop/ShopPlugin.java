@@ -8,8 +8,7 @@ import fr.iban.lands.LandManager;
 import fr.iban.lands.LandsPlugin;
 import fr.iban.shop.commands.ShopCommands;
 import fr.iban.shop.commands.ShopStatsCommands;
-import fr.iban.shop.listeners.InteractListener;
-import fr.iban.shop.listeners.ServiceListeners;
+import fr.iban.shop.listeners.*;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -18,8 +17,6 @@ import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import fr.iban.shop.listeners.InventoryListener;
-import fr.iban.shop.listeners.ShopListeners;
 import fr.iban.shop.manager.FluctuationManager;
 import fr.iban.shop.manager.ShopManager;
 import fr.iban.shop.manager.TransactionManager;
@@ -66,6 +63,7 @@ public final class ShopPlugin extends JavaPlugin {
         pm.registerEvents(new ShopListeners(), this);
         pm.registerEvents(new ServiceListeners(this), this);
         pm.registerEvents(new InteractListener(this), this);
+        pm.registerEvents(new SyncMessageListener(this), this);
         /*
          * Register Commands:
          */

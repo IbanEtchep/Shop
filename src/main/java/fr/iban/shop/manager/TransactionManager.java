@@ -48,7 +48,7 @@ public class TransactionManager {
                 shopManager.addTransactionLog(shopItem, player.getUniqueId(), amount, price, ShopAction.BUY);
                 shopManager.saveStock(shopItem);
                 player.sendMessage("§aVous avez acheté " + amount + " " + item.getType().name() + " pour " + price + "$");
-                String log = player.getName() + " a acheté " + amount + " " + item.getType().toString() + " pour " + price + "$";
+                String log = player.getName() + " a acheté " + amount + " " + item.getType() + " pour " + price + "$";
                 plugin.getLogger().info(log);
                 Bukkit.getPluginManager().callEvent(new ShopActionEvent(ShopAction.BUY));
             }

@@ -28,7 +28,7 @@ public class ShopDbAccess {
         String[] createStatements = new String[]{
                 "CREATE TABLE IF NOT EXISTS shop_categories(" +
                         "id INTEGER PRIMARY KEY AUTO_INCREMENT ," +
-                        "name VARCHAR(255)" +
+                        "name VARCHAR(255) UNIQUE" +
                         "); ",
                 "CREATE TABLE IF NOT EXISTS shop_items(" +
                         "id INTEGER PRIMARY KEY AUTO_INCREMENT ," +
@@ -118,7 +118,7 @@ public class ShopDbAccess {
 
     public void addItem(ShopItem item) {
         String sql = "INSERT INTO shop_items(name, itemStack, buyPrice, sellPrice, stock, maxStock, category_id) " +
-                "VALUES (?, ?, ?, ?, ?, ?, (SELECT id FROM shop_categories WHERE name=?));";
+                "VALUES (?, ?, ?, ?, ?, ?, (SELECT id FROM shop_categories WHERE name=? LIMIT 1));";
 
         try (Connection connection = ds.getConnection()) {
             try (PreparedStatement ps = connection.prepareStatement(sql)) {

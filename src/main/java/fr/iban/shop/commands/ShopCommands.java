@@ -4,9 +4,12 @@ import fr.iban.shop.ShopPlugin;
 import fr.iban.shop.manager.ShopManager;
 import fr.iban.shop.menu.menus.CategoryMenu;
 import fr.iban.shop.menu.menus.ShopTypeSelectMenu;
+import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import revxrsal.commands.annotation.*;
+import revxrsal.commands.bukkit.BukkitCommandActor;
 import revxrsal.commands.bukkit.annotation.CommandPermission;
 import revxrsal.commands.command.CommandActor;
 
@@ -22,6 +25,7 @@ public class ShopCommands {
     }
 
     @Command("shop")
+    @CommandPermission("shop.opencategory")
     @Default
     public void openCategory(Player sender, String category) {
         if(!sender.getName().startsWith(".")) {
@@ -71,6 +75,72 @@ public class ShopCommands {
 
     private boolean isInventoryFull(Player player) {
         return player.getInventory().firstEmpty() == -1;
+    }
+
+    @Subcommand("stats purchases")
+    @Cooldown(10)
+    public void purchasesTopPlayer(BukkitCommandActor sender, @Optional OfflinePlayer offlinePlayer) {
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+            if (offlinePlayer == null) {
+                if(sender.isPlayer()) {
+                    sender.reply("§7Voici vos meilleurs achats au marché : ");
+                    for (String line : shopManager.getDbAccess().getPlayerTopPurchases(sender.getUniqueId())) {
+                        sender.reply(line);
+                    }
+                }else {
+                    sender.reply("Veuillez spécifier le nom d'un joueur.");
+                }
+            } else if(sender.isConsole() || sender.getAsPlayer() != null && sender.getAsPlayer().hasPermission("shopstats.others")){
+                sender.reply("§7Voici les meilleurs achats au marché de " + offlinePlayer.getName());
+                for (String line : shopManager.getDbAccess().getPlayerTopPurchases(offlinePlayer.getUniqueId())) {
+                    sender.reply(line);
+                }
+            }
+        });
+    }
+
+    @Subcommand("stats sales")
+    @Cooldown(10)
+    public void salesTopPlayer(BukkitCommandActor sender, @Optional OfflinePlayer offlinePlayer) {
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+            if (offlinePlayer == null) {
+                if(sender.isPlayer()) {
+                    sender.reply("§7Voici vos meilleurs ventes au marché : ");
+                    for (String line : shopManager.getDbAccess().getPlayerTopSales(sender.getUniqueId())) {
+                        sender.reply(line);
+                    }
+                }else {
+                    sender.reply("Veuillez spécifier le nom d'un joueur.");
+                }
+            } else if(sender.isConsole() || sender.getAsPlayer() != null && sender.getAsPlayer().hasPermission("shopstats.others")){
+                sender.reply("§7Voici les meilleurs ventes au marché de " + offlinePlayer.getName());
+                for (String line : shopManager.getDbAccess().getPlayerTopSales(offlinePlayer.getUniqueId())) {
+                    sender.reply(line);
+                }
+            }
+        });
+    }
+
+    @Subcommand("stats purchases")
+    @CommandPermission("shopstats.global")
+    public void purchasesTop(CommandActor sender) {
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+            sender.reply("§7Voici les meilleurs achats au marché:");
+            for (String line : shopManager.getDbAccess().getTopPurchases()) {
+                sender.reply(line);
+            }
+        });
+    }
+
+    @Subcommand("stats sales")
+    @CommandPermission("shopstats.global")
+    public void salesTop(CommandActor sender) {
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+            sender.reply("§7Voici les meilleurs ventes au marché :");
+            for (String line : shopManager.getDbAccess().getTopSales()) {
+                sender.reply(line);
+            }
+        });
     }
 
 

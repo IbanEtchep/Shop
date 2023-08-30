@@ -1,27 +1,22 @@
 package fr.iban.shop;
 
-import java.io.File;
-import java.io.IOException;
-
 import fr.iban.bukkitcore.CoreBukkitPlugin;
-import fr.iban.lands.LandManager;
-import fr.iban.lands.LandsPlugin;
 import fr.iban.shop.commands.ShopCommands;
-import fr.iban.shop.commands.ShopStatsCommands;
 import fr.iban.shop.listeners.*;
-import org.bukkit.Bukkit;
+import fr.iban.shop.manager.FluctuationManager;
+import fr.iban.shop.manager.ShopManager;
+import fr.iban.shop.manager.TransactionManager;
+import net.milkbowl.vault.economy.Economy;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
-
-import fr.iban.shop.manager.FluctuationManager;
-import fr.iban.shop.manager.ShopManager;
-import fr.iban.shop.manager.TransactionManager;
-import net.milkbowl.vault.economy.Economy;
 import revxrsal.commands.bukkit.BukkitCommandHandler;
+
+import java.io.File;
+import java.io.IOException;
 
 public final class ShopPlugin extends JavaPlugin {
 	
@@ -74,7 +69,6 @@ public final class ShopPlugin extends JavaPlugin {
         BukkitCommandHandler commandHandler = BukkitCommandHandler.create(this);
         commandHandler.accept(CoreBukkitPlugin.getInstance().getCommandHandlerVisitor());
         commandHandler.register(new ShopCommands(this));
-        commandHandler.register(new ShopStatsCommands(this));
     }
 
     public FileConfiguration getShopsConfig() {

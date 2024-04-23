@@ -19,9 +19,9 @@ import java.io.File;
 import java.io.IOException;
 
 public final class ShopPlugin extends JavaPlugin {
-	
-	private static ShopPlugin instance;
-    
+
+    private static ShopPlugin instance;
+
     private File shopsFile;
     private FileConfiguration shopsConfig;
     private ShopManager shopManager;
@@ -33,23 +33,23 @@ public final class ShopPlugin extends JavaPlugin {
 
     @Override
     public void onEnable() {
-    	instance = this;
+        instance = this;
         saveDefaultConfig();
         createShopsConfig();
         shopManager = new ShopManager(this);
         transactionManager = new TransactionManager(this);
         fluctuationManager = new FluctuationManager(this);
         PluginManager pm = getServer().getPluginManager();
-        
+
         //Vault setup
-        if (!setupEconomy() ) {
+        if (!setupEconomy()) {
             getLogger().severe(String.format("[%s] - Disabled due to no Vault dependency found!", getDescription().getName()));
             getServer().getPluginManager().disablePlugin(this);
             return;
         }
 
-        if(getConfig().getBoolean("fluctuation.enabled", false)) {
-            fluctuationManager.scheduleFluctuation(20L*3600, 0.1D);
+        if (getConfig().getBoolean("fluctuation.enabled", false)) {
+            fluctuationManager.scheduleFluctuation(20L * 3600, 0.1D);
         }
         /*
          * Register listeners :
@@ -78,29 +78,29 @@ public final class ShopPlugin extends JavaPlugin {
     private void createShopsConfig() {
         shopsFile = new File(getDataFolder(), "shops.yml");
         if (!shopsFile.exists()) {
-        	shopsFile.getParentFile().mkdirs();
+            shopsFile.getParentFile().mkdirs();
             saveResource("shops.yml", false);
-         }
+        }
         shopsConfig = new YamlConfiguration();
         try {
-        	shopsConfig.load(shopsFile);
+            shopsConfig.load(shopsFile);
         } catch (IOException | InvalidConfigurationException e) {
             e.printStackTrace();
         }
     }
 
-	public ShopManager getShopManager() {
-		return shopManager;
-	}
+    public ShopManager getShopManager() {
+        return shopManager;
+    }
 
-	public static ShopPlugin getInstance() {
-		return instance;
-	}
-	
+    public static ShopPlugin getInstance() {
+        return instance;
+    }
+
     public Economy getEconomy() {
         return econ;
     }
-	
+
     public boolean setupEconomy() {
         if (getServer().getPluginManager().getPlugin("Vault") == null) {
             return false;
@@ -113,16 +113,16 @@ public final class ShopPlugin extends JavaPlugin {
         return true;
     }
 
-	public TransactionManager getTransactionManager() {
-		return transactionManager;
-	}
+    public TransactionManager getTransactionManager() {
+        return transactionManager;
+    }
 
     public FluctuationManager getFluctuationManager() {
         return fluctuationManager;
     }
 
     public File getShopsFile() {
-		return shopsFile;
-	}
+        return shopsFile;
+    }
 
 }

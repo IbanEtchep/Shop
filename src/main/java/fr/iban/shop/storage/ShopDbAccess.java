@@ -8,7 +8,10 @@ import fr.iban.shop.utils.ShopAction;
 import org.bukkit.inventory.ItemStack;
 
 import javax.sql.DataSource;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -33,7 +36,7 @@ public class ShopDbAccess {
                 "CREATE TABLE IF NOT EXISTS shop_items(" +
                         "id INTEGER PRIMARY KEY AUTO_INCREMENT ," +
                         "name VARCHAR(255) ," +
-                        "itemstack TEXT UNIQUE ," +
+                        "itemstack TEXT ," +
                         "buyPrice FLOAT," +
                         "sellPrice FLOAT," +
                         "stock INTEGER," +
@@ -279,12 +282,12 @@ public class ShopDbAccess {
             try (PreparedStatement ps = connection.prepareStatement(sql)) {
                 ps.setString(1, uuid.toString());
                 try (ResultSet rs = ps.executeQuery()) {
-                    for(int i = 1; rs.next() ; i++) {
+                    for (int i = 1; rs.next(); i++) {
                         String itemName = rs.getString("I.name");
-                        String unitPrice = rs.getString("buyPrice")+plugin.getEconomy().currencyNameSingular()+"/u";
+                        String unitPrice = rs.getString("buyPrice") + plugin.getEconomy().currencyNameSingular() + "/u";
                         String totalSales = rs.getString("TotalSales");
                         String totalPrice = rs.getString("TotalPrice");
-                        purchases.add(i + "- " + itemName + " §7"+unitPrice+" §bx"+ totalSales + " §f→ §3"
+                        purchases.add(i + "- " + itemName + " §7" + unitPrice + " §bx" + totalSales + " §f→ §3"
                                 + totalPrice + plugin.getEconomy().currencyNameSingular());
                     }
                 }
@@ -310,12 +313,12 @@ public class ShopDbAccess {
             try (PreparedStatement ps = connection.prepareStatement(sql)) {
                 ps.setString(1, uuid.toString());
                 try (ResultSet rs = ps.executeQuery()) {
-                    for(int i = 1; rs.next() ; i++) {
+                    for (int i = 1; rs.next(); i++) {
                         String itemName = rs.getString("I.name");
-                        String unitPrice = rs.getString("sellPrice")+plugin.getEconomy().currencyNameSingular()+"/u";
+                        String unitPrice = rs.getString("sellPrice") + plugin.getEconomy().currencyNameSingular() + "/u";
                         String totalSales = rs.getString("TotalSales");
                         String totalPrice = rs.getString("TotalPrice");
-                        purchases.add(i + "- " + itemName + " §7"+unitPrice+" §bx"+ totalSales + " §f→ §3"
+                        purchases.add(i + "- " + itemName + " §7" + unitPrice + " §bx" + totalSales + " §f→ §3"
                                 + totalPrice + plugin.getEconomy().currencyNameSingular());
                     }
                 }
@@ -339,12 +342,12 @@ public class ShopDbAccess {
         try (Connection connection = ds.getConnection()) {
             try (PreparedStatement ps = connection.prepareStatement(sql)) {
                 try (ResultSet rs = ps.executeQuery()) {
-                    for(int i = 1; rs.next() ; i++) {
+                    for (int i = 1; rs.next(); i++) {
                         String itemName = rs.getString("I.name");
-                        String unitPrice = rs.getString("buyPrice")+plugin.getEconomy().currencyNameSingular()+"/u";
+                        String unitPrice = rs.getString("buyPrice") + plugin.getEconomy().currencyNameSingular() + "/u";
                         String totalSales = rs.getString("TotalSales");
                         String totalPrice = rs.getString("TotalPrice");
-                        purchases.add(i + "- " + itemName + " §7"+unitPrice+" §bx"+ totalSales + " §f→ §3"
+                        purchases.add(i + "- " + itemName + " §7" + unitPrice + " §bx" + totalSales + " §f→ §3"
                                 + totalPrice + plugin.getEconomy().currencyNameSingular());
                     }
                 }
@@ -368,12 +371,12 @@ public class ShopDbAccess {
         try (Connection connection = ds.getConnection()) {
             try (PreparedStatement ps = connection.prepareStatement(sql)) {
                 try (ResultSet rs = ps.executeQuery()) {
-                    for(int i = 1; rs.next() ; i++) {
+                    for (int i = 1; rs.next(); i++) {
                         String itemName = rs.getString("I.name");
-                        String unitPrice = rs.getString("sellPrice")+plugin.getEconomy().currencyNameSingular()+"/u";
+                        String unitPrice = rs.getString("sellPrice") + plugin.getEconomy().currencyNameSingular() + "/u";
                         String totalSales = rs.getString("TotalSales");
                         String totalPrice = rs.getString("TotalPrice");
-                        purchases.add(i + "- " + itemName + " §7"+unitPrice+" §bx"+ totalSales + " §f→ §3"
+                        purchases.add(i + "- " + itemName + " §7" + unitPrice + " §bx" + totalSales + " §f→ §3"
                                 + totalPrice + plugin.getEconomy().currencyNameSingular());
                     }
                 }

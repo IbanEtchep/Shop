@@ -24,13 +24,13 @@ public class ShopCommands {
         this.shopManager = plugin.getShopManager();
     }
 
-    @Command("shop")
+    @Subcommand("open")
     @CommandPermission("shop.opencategory")
-    @Default
+    @DefaultFor("shop")
     public void openCategory(Player sender, String category) {
-        if(!sender.getName().startsWith(".")) {
+        if (!sender.getName().startsWith(".")) {
             new CategoryMenu(sender, category).open();
-        }else {
+        } else {
             new ShopTypeSelectMenu(sender, action -> new CategoryMenu(sender, category, action).open()).open();
         }
     }
@@ -82,15 +82,15 @@ public class ShopCommands {
     public void purchasesTopPlayer(BukkitCommandActor sender, @Optional OfflinePlayer offlinePlayer) {
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             if (offlinePlayer == null) {
-                if(sender.isPlayer()) {
+                if (sender.isPlayer()) {
                     sender.reply("§7Voici vos meilleurs achats au marché : ");
                     for (String line : shopManager.getDbAccess().getPlayerTopPurchases(sender.getUniqueId())) {
                         sender.reply(line);
                     }
-                }else {
+                } else {
                     sender.reply("Veuillez spécifier le nom d'un joueur.");
                 }
-            } else if(sender.isConsole() || sender.getAsPlayer() != null && sender.getAsPlayer().hasPermission("shopstats.others")){
+            } else if (sender.isConsole() || sender.getAsPlayer() != null && sender.getAsPlayer().hasPermission("shopstats.others")) {
                 sender.reply("§7Voici les meilleurs achats au marché de " + offlinePlayer.getName());
                 for (String line : shopManager.getDbAccess().getPlayerTopPurchases(offlinePlayer.getUniqueId())) {
                     sender.reply(line);
@@ -104,15 +104,15 @@ public class ShopCommands {
     public void salesTopPlayer(BukkitCommandActor sender, @Optional OfflinePlayer offlinePlayer) {
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             if (offlinePlayer == null) {
-                if(sender.isPlayer()) {
+                if (sender.isPlayer()) {
                     sender.reply("§7Voici vos meilleurs ventes au marché : ");
                     for (String line : shopManager.getDbAccess().getPlayerTopSales(sender.getUniqueId())) {
                         sender.reply(line);
                     }
-                }else {
+                } else {
                     sender.reply("Veuillez spécifier le nom d'un joueur.");
                 }
-            } else if(sender.isConsole() || sender.getAsPlayer() != null && sender.getAsPlayer().hasPermission("shopstats.others")){
+            } else if (sender.isConsole() || sender.getAsPlayer() != null && sender.getAsPlayer().hasPermission("shopstats.others")) {
                 sender.reply("§7Voici les meilleurs ventes au marché de " + offlinePlayer.getName());
                 for (String line : shopManager.getDbAccess().getPlayerTopSales(offlinePlayer.getUniqueId())) {
                     sender.reply(line);
@@ -123,6 +123,7 @@ public class ShopCommands {
 
     @Subcommand("stats purchases")
     @CommandPermission("shopstats.global")
+    @DefaultFor("shop stats purchases")
     public void purchasesTop(CommandActor sender) {
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             sender.reply("§7Voici les meilleurs achats au marché:");
@@ -134,6 +135,7 @@ public class ShopCommands {
 
     @Subcommand("stats sales")
     @CommandPermission("shopstats.global")
+    @DefaultFor("shop stats sales")
     public void salesTop(CommandActor sender) {
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             sender.reply("§7Voici les meilleurs ventes au marché :");

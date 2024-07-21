@@ -35,6 +35,12 @@ public class ShopCommands {
         }
     }
 
+    @Subcommand("forceopen")
+    @CommandPermission("shop.admin")
+    public void forceOpenCategory(BukkitCommandActor sender, Player player, String category) {
+        new CategoryMenu(player, category).open();
+    }
+
     @Subcommand("reload")
     @CommandPermission("shop.admin")
     public void reload(CommandActor sender) {

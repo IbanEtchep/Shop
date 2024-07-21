@@ -4,6 +4,6 @@ main: fr.iban.shop.ShopPlugin
 api-version: 1.16
 prefix: Shop
 depend: [ Vault , Core ]
-solfdepend: [ Lands ]
+solfdepend: [ MSLands ]
 authors: [ Iban ]
 description: Plugin de shop

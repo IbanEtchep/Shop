@@ -1,6 +1,7 @@
 package fr.iban.shop;
 
 import fr.iban.bukkitcore.CoreBukkitPlugin;
+import fr.iban.bukkitcore.commands.CoreCommandHandlerVisitor;
 import fr.iban.shop.commands.ShopCommands;
 import fr.iban.shop.listeners.*;
 import fr.iban.shop.manager.FluctuationManager;
@@ -13,7 +14,9 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
-import revxrsal.commands.bukkit.BukkitCommandHandler;
+import revxrsal.commands.Lamp;
+import revxrsal.commands.bukkit.BukkitLamp;
+import revxrsal.commands.bukkit.actor.BukkitCommandActor;
 
 import java.io.File;
 import java.io.IOException;
@@ -66,9 +69,11 @@ public final class ShopPlugin extends JavaPlugin {
     }
 
     private void registerCommands() {
-        BukkitCommandHandler commandHandler = BukkitCommandHandler.create(this);
-        commandHandler.accept(CoreBukkitPlugin.getInstance().getCommandHandlerVisitor());
-        commandHandler.register(new ShopCommands(this));
+        Lamp<BukkitCommandActor> lamp =  BukkitLamp.builder(this)
+                .accept(new CoreCommandHandlerVisitor(CoreBukkitPlugin.getInstance()).visitor())
+                .build();
+
+        lamp.register(new ShopCommands(this));
     }
 
     public FileConfiguration getShopsConfig() {

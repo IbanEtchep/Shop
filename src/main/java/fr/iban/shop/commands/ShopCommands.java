@@ -9,7 +9,7 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import revxrsal.commands.annotation.*;
-import revxrsal.commands.bukkit.BukkitCommandActor;
+import revxrsal.commands.bukkit.actor.BukkitCommandActor;
 import revxrsal.commands.bukkit.annotation.CommandPermission;
 import revxrsal.commands.command.CommandActor;
 
@@ -24,9 +24,13 @@ public class ShopCommands {
         this.shopManager = plugin.getShopManager();
     }
 
+    @CommandPlaceholder
+    public void shop(Player sender, String category) {
+        openCategory(sender, category);
+    }
+
     @Subcommand("open")
     @CommandPermission("shop.opencategory")
-    @DefaultFor("shop")
     public void openCategory(Player sender, String category) {
         if (!sender.getName().startsWith(".")) {
             new CategoryMenu(sender, category).open();
@@ -86,17 +90,19 @@ public class ShopCommands {
     @Subcommand("stats purchases")
     @Cooldown(10)
     public void purchasesTopPlayer(BukkitCommandActor sender, @Optional OfflinePlayer offlinePlayer) {
+        Player senderPlayer = sender.asPlayer();
+
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             if (offlinePlayer == null) {
-                if (sender.isPlayer()) {
+                if (senderPlayer != null) {
                     sender.reply("§7Voici vos meilleurs achats au marché : ");
-                    for (String line : shopManager.getDbAccess().getPlayerTopPurchases(sender.getUniqueId())) {
+                    for (String line : shopManager.getDbAccess().getPlayerTopPurchases(senderPlayer.getUniqueId())) {
                         sender.reply(line);
                     }
                 } else {
                     sender.reply("Veuillez spécifier le nom d'un joueur.");
                 }
-            } else if (sender.isConsole() || sender.getAsPlayer() != null && sender.getAsPlayer().hasPermission("shopstats.others")) {
+            } else if (sender.isConsole() || senderPlayer != null && senderPlayer.hasPermission("shopstats.others")) {
                 sender.reply("§7Voici les meilleurs achats au marché de " + offlinePlayer.getName());
                 for (String line : shopManager.getDbAccess().getPlayerTopPurchases(offlinePlayer.getUniqueId())) {
                     sender.reply(line);
@@ -108,17 +114,19 @@ public class ShopCommands {
     @Subcommand("stats sales")
     @Cooldown(10)
     public void salesTopPlayer(BukkitCommandActor sender, @Optional OfflinePlayer offlinePlayer) {
+        Player senderPlayer = sender.asPlayer();
+
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             if (offlinePlayer == null) {
-                if (sender.isPlayer()) {
+                if (senderPlayer != null) {
                     sender.reply("§7Voici vos meilleurs ventes au marché : ");
-                    for (String line : shopManager.getDbAccess().getPlayerTopSales(sender.getUniqueId())) {
+                    for (String line : shopManager.getDbAccess().getPlayerTopSales(senderPlayer.getUniqueId())) {
                         sender.reply(line);
                     }
                 } else {
                     sender.reply("Veuillez spécifier le nom d'un joueur.");
                 }
-            } else if (sender.isConsole() || sender.getAsPlayer() != null && sender.getAsPlayer().hasPermission("shopstats.others")) {
+            } else if (sender.isConsole() ||senderPlayer != null && senderPlayer.hasPermission("shopstats.others")) {
                 sender.reply("§7Voici les meilleurs ventes au marché de " + offlinePlayer.getName());
                 for (String line : shopManager.getDbAccess().getPlayerTopSales(offlinePlayer.getUniqueId())) {
                     sender.reply(line);
@@ -127,9 +135,8 @@ public class ShopCommands {
         });
     }
 
-    @Subcommand("stats purchases")
+    @Subcommand("stats globalpurchases")
     @CommandPermission("shopstats.global")
-    @DefaultFor("shop stats purchases")
     public void purchasesTop(CommandActor sender) {
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             sender.reply("§7Voici les meilleurs achats au marché:");
@@ -139,9 +146,8 @@ public class ShopCommands {
         });
     }
 
-    @Subcommand("stats sales")
+    @Subcommand("stats globalsales")
     @CommandPermission("shopstats.global")
-    @DefaultFor("shop stats sales")
     public void salesTop(CommandActor sender) {
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             sender.reply("§7Voici les meilleurs ventes au marché :");
